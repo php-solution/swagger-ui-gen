@@ -1,0 +1,33 @@
+{
+    "name": "php-solution/swagger-ui-gen-bundle",
+    "type": "component",
+    "description": "Extra functionality for generate data for SwaggerUI",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Oleksandr Savchenko",
+            "email": "dev.olsav@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "~7.1",
+        "symfony/symfony": "~3.0",
+        "php-solution/swagger-ui-gen-lib": "dev-master"
+    },
+    "require-dev": {
+        "phpunit/phpunit" : "~6.0"
+    },
+    "autoload":     {
+        "psr-4": { "PhpSolution\\SwaggerUIGen\\Bundle\\": "src" }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.x-dev"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    }
+}

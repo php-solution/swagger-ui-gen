@@ -1,0 +1,33 @@
+{
+    "name": "php-solution/swagger-ui-gen",
+    "type": "component",
+    "description": "Extra functionality for generate Swagger specification",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Oleksandr Savchenko",
+            "email": "dev.olsav@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "~7.1",
+        "symfony/symfony": "~3.0",
+        "justinrainbow/json-schema": "~5.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit" : "~6.0"
+    },
+    "autoload":     {
+        "psr-4": { "PhpSolution\\SwaggerUIGen\\": "src" }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.x-dev"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    }
+}

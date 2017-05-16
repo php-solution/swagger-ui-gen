@@ -1,0 +1,83 @@
+services:
+    # General
+    swagger_uigen.data_provider_factory:
+        public: false
+        class: 'PhpSolution\SwaggerUIGen\Bundle\Service\DataProviderFactory'
+        arguments: ['@file_locator']
+
+    swagger_uigen.data_provider:
+        class: 'PhpSolution\SwaggerUIGen\Component\DataProvider\YamlDataProvider'
+        arguments: [[], [], []]
+        factory: 'swagger_uigen.data_provider_factory:createDataProvider'
+
+    swagger_uigen.swagger_provider:
+        class: 'PhpSolution\SwaggerUIGen\Component\SwaggerProvider'
+        arguments: [~]
+
+    swagger_uigen.model_factory.general:
+        public: false
+        class: 'PhpSolution\SwaggerUIGen\Component\ModelHandler\GeneralFactory'
+
+    # Symfony Handlers
+    swagger_uigen.model_builder.swagger.definitions:
+        public: false
+        class: 'PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Swagger\DefinitionsBuilder'
+        arguments: ['@swagger_uigen.model_factory.schema']
+        tags:
+            - {name: 'swagger_uigen.swagger_data_normalizer'}
+            - {name: 'swagger_uigen.model_builder.swagger'}
+
+    swagger_uigen.model_builder.swagger.route_paths:
+        public: false
+        class: 'PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Swagger\RoutePaths'
+        arguments: ['@swagger_uigen.model_factory.path_item']
+        tags:
+            - {name: 'swagger_uigen.swagger_data_normalizer'}
+            - {name: 'swagger_uigen.model_builder.swagger'}
+
+    swagger_uigen.model_factory.path_item:
+        public: false
+        class: 'PhpSolution\SwaggerUIGen\Bundle\ModelHandler\PathItemFactory'
+        arguments: ['@router', '@swagger_uigen.model_factory.general']
+
+    # Response Operation handlers
+    swagger_uigen.model_builder.operation.general:
+        public: false
+        class: 'PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Operation\GeneralBuilder'
+        arguments: ['@swagger_uigen.model_factory.general', '@swagger_uigen.model_factory.schema']
+        tags: [{name: 'swagger_uigen.model_builder.operation'}]
+
+    swagger_uigen.model_builder.operation.form_type:
+        public: false
+        class: 'PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Operation\FormTypeBuilder'
+        arguments: ['@form.factory', '@swagger_uigen.model_builder.parameter.form_validator']
+        tags: [{name: 'swagger_uigen.model_builder.operation'}]
+
+    swagger_uigen.model_builder.parameter.form_validator:
+        public: false
+        class: 'PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Operation\FormValidatorBuilder'
+        arguments: ['@validator.mapping.class_metadata_factory']
+
+    # Schema handlers
+    swagger_uigen.model_factory.schema:
+        public: false
+        class: 'PhpSolution\SwaggerUIGen\Bundle\ModelHandler\SchemaFactory'
+        arguments: ['@swagger_uigen.model_factory.general']
+
+    swagger_uigen.model_builder.schema.serializer:
+        public: false
+        class: 'PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Schema\SerializerBuilder'
+        arguments: ['@serializer.mapping.class_metadata_factory']
+        tags: [{name: 'swagger_uigen.model_builder.schema'}]
+
+    swagger_uigen.model_builder.schema.doctrine:
+        public: false
+        class: 'PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Schema\DoctrineBuilder'
+        arguments: ['@doctrine']
+        tags: [{name: 'swagger_uigen.model_builder.schema'}]
+
+    swagger_uigen.model_builder.schema.validator:
+        public: false
+        class: 'PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Schema\ValidatorBuilder'
+        arguments: ['@validator.mapping.class_metadata_factory']
+        tags: [{name: 'swagger_uigen.model_builder.schema'}]

@@ -1,0 +1,16 @@
+admin_post_with_form:
+    path: '/form/create'
+    defaults: { _controller: 'ProjectAdminBundle:AdminForm:post' }
+    methods: ['POST']
+
+admin_post_with_form_multiple:
+    path: '/form/create-multiple'
+    defaults: { _controller: 'ProjectAdminBundle:AdminForm:postMultiple' }
+    methods: ['POST']
+
+admin_put_with_form:
+    path: '/{id}/form'
+    defaults: { _controller: 'ProjectAdminBundle:AdminForm:put' }
+    methods: ['PUT']
+    requirements:
+        id: \d+

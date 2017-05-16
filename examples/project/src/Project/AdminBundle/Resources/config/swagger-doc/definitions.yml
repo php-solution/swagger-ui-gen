@@ -1,0 +1,12 @@
+sf_object_definitions:
+  -
+    name: 'AdminCreate'
+    type: 'object'
+    mapping:
+      type: ['validator']
+      validation_groups: ['create']
+      class: 'Project\AdminBundle\Lib\AdminListModel'
+    properties:
+      admins:
+        type: 'collection'
+        mapping: {class: 'Project\AdminBundle\Lib\AdminModel'}

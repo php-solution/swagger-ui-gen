@@ -1,0 +1,61 @@
+sf_route_paths:
+  -
+    route: 'admin_list' # symfony route name, required
+    tags: ['admin'] # openapi tags, not required, default value: []
+    schemes: [] # openapi schemes, not required, default value: []
+    response: # use for operapi operation response, not required, default value: []
+      status_code: 200 # not required, default value: "default"
+      type: 'object' # not required, default value: "object", complex values: ['array', 'object', 'collection']
+      mapping:
+        type: ['doctrine', 'serializer'] # not required, use all if builders empty
+        class: 'Project\AdminBundle\Lib\PaginatedCollection' # required
+        serializer_groups: ['list'] # use only for serializer
+      properties:
+        items: # property name, require
+          type: 'collection'
+          mapping: {class: 'Project\AdminBundle\Entity\Admin'}
+    openapi_params: # not required, default value: []
+      get:
+        summary: 'Get admin list'
+        responses:
+          << : *defaultResponceErrors
+        security:
+          - api_key: []
+  -
+    route: 'admin_post_with_form'
+    tags: ['admin']
+    request:
+      form_class: 'Project\AdminBundle\Form\Type\AdminCreateType'
+      form_options: {validation_groups: ['create']}
+      validation_class: 'Project\AdminBundle\Lib\AdminModel'
+      validation_groups: ['create']
+    response:
+      type: 'object'
+      mapping:
+        type: ['doctrine', 'serializer']
+        class: 'Project\AdminBundle\Entity\Admin'
+        serializer_groups: ['get']
+  -
+    route: 'admin_post_with_form_multiple'
+    tags: ['admin']
+    request:
+      form_class: 'Project\AdminBundle\Form\Type\MultipleAdminType'
+    response:
+      type: 'collection'
+      openapi_params: {$ref: '#/definitions/Admin'}
+
+# Openapi paths
+paths:
+  /user/list-example:
+      get:
+        tags: ["admin"]
+        summary: "Get admin list"
+        responses:
+          << : *defaultResponceErrors
+        parameters:
+          - in: 'formData'
+            name: 'example'
+            type: 'string'
+            pattern: '/^((?=.*[a-z])(?=.*[A-Z])(?=.*\d)){6,}.+$/'
+            minimum: 10
+            format: 'time'

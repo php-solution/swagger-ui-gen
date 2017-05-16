@@ -1,0 +1,30 @@
+admin_list:
+    path: '/list'
+    defaults: { _controller: 'ProjectAdminBundle:Admin:list', offset: 0 }
+    methods: ['GET']
+
+admin_post:
+    path: '/create'
+    defaults: { _controller: 'ProjectAdminBundle:Admin:post' }
+    methods: ['POST']
+
+admin_get:
+    path: '/{id}'
+    defaults: { _controller: 'ProjectAdminBundle:Admin:get' }
+    methods: ['GET']
+    requirements:
+        id: \d+
+
+admin_put:
+    path: '/{id}'
+    defaults: { _controller: 'ProjectAdminBundle:Admin:put' }
+    methods: ['PUT']
+    requirements:
+        id: \d+
+
+admin_delete:
+    path: '/{id}'
+    defaults: { _controller: 'ProjectAdminBundle:Admin:delete' }
+    methods: ['DELETE']
+    requirements:
+        id: \d+

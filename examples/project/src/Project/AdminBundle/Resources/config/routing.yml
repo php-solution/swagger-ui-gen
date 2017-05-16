@@ -1,0 +1,7 @@
+project_admin_serialize_base:
+    resource: "@ProjectAdminBundle/Resources/config/routing/serialize.yml"
+    prefix: '/user'
+
+project_admin_form_base:
+    resource: "@ProjectAdminBundle/Resources/config/routing/form.yml"
+    prefix: '/user'

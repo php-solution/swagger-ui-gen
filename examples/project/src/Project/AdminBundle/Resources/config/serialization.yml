@@ -1,0 +1,29 @@
+Project\AdminBundle\Lib\PaginatedCollection:
+    attributes:
+        totalCount: {groups: ['list']}
+        offset: {groups: ['list']}
+        limit: {groups: ['list']}
+        items: {groups: ['list']}
+
+Project\AdminBundle\Entity\Admin:
+    attributes:
+        email:
+            groups: ['list', 'get']
+        status:
+            groups: ['get']
+        roles:
+            groups: ['list']
+
+Project\AdminBundle\Entity\AdminRole:
+    attributes:
+        id:
+            groups: ['list', 'get']
+        name:
+            groups: ['get']
+
+Project\AdminBundle\Entity\AdminStatus:
+    attributes:
+        id:
+            groups: ['list', 'get']
+        name:
+            groups: ['get']

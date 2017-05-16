@@ -1,0 +1,12 @@
+swagger_ui_gen:
+    options_provider:
+        defaults:
+            - '%kernel.root_dir%/Resources/swagger-doc/defaults.yml'
+        files:
+            - '%kernel.root_dir%/Resources/swagger-doc/general.yml'
+            - '%kernel.root_dir%/Resources/swagger-doc/tags.yml'
+            - '%kernel.root_dir%/Resources/swagger-doc/paths.yml'
+            - '%kernel.root_dir%/Resources/swagger-doc/security_def.yml'
+            - '%kernel.root_dir%/Resources/swagger-doc/definitions.yml'
+        folders:
+            - '@ProjectAdminBundle/Resources/config/swagger-doc'

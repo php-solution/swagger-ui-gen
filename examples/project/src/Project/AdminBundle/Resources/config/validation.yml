@@ -1,0 +1,14 @@
+Project\AdminBundle\Lib\AdminModel:
+    properties:
+        email:
+            - NotBlank:
+                groups: ['create', 'edit']
+            - Email:
+                groups: ['create', 'edit']
+                strict: false
+            - Regex:
+                pattern: '/^((?=.*[a-z])(?=.*[A-Z])(?=.*\d)){6,}.+$/'
+                groups: ['create', 'edit']
+        roles:
+            - NotBlank:
+                groups: ['create', 'edit']

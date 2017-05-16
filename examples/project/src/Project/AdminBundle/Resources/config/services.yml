@@ -1,0 +1,10 @@
+services:
+    project_admin.admin_manager:
+        class: 'Project\AdminBundle\Lib\AdminManager'
+        calls:
+            - ['setDoctrine', ['@doctrine']]
+
+    project_admin.admin_model_builder:
+        class: 'Project\AdminBundle\Lib\AdminModelBuilder'
+        calls:
+            - ['setDoctrine', ['@doctrine']]

@@ -1,0 +1,5 @@
+sf_object_definitions:
+  - name: 'Admin'
+    mapping:
+      type: ['doctrine', 'serializer']
+      class: 'Project\AdminBundle\Entity\Admin'
