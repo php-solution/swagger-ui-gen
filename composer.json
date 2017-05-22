@@ -12,7 +12,7 @@
     "require": {
         "php": "~7.1",
         "symfony/symfony": "~3.0",
-        "justinrainbow/json-schema": "@dev"
+        "justinrainbow/json-schema": "dev-master"
     },
     "require-dev": {
         "phpunit/phpunit" : "~6.0"
