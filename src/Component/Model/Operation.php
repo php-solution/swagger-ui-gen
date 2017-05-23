@@ -196,6 +196,16 @@ class Operation
     }
 
     /**
+     * @param array $parameters
+     */
+    public function mergeToParameters(array $parameters): void
+    {
+        foreach ($parameters as $parameter) {
+            $this->parameters[] = $parameter;
+        }
+    }
+
+    /**
      * @param Parameter $parameter
      */
     public function addParameter(Parameter $parameter): void

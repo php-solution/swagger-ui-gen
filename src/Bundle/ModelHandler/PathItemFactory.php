@@ -73,7 +73,7 @@ class PathItemFactory
         foreach ($config['methods'] ?? $routeInfo->getMethods() as $method) {
             $method = strtolower($method);
             $operation = $pathItem->getOperation($method) ?: new Operation();
-            $operation->setParameters($parameters);
+            $operation->mergeToParameters($parameters);
             foreach ($this->operationBuilders as $operationBuilder) {
                 $operationBuilder->build($operation, $config);
             }
