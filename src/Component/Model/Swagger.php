@@ -216,6 +216,26 @@ class Swagger
     }
 
     /**
+     * @param string $pathName
+     *
+     * @return bool
+     */
+    public function hasPathItem(string $pathName): bool
+    {
+        return array_key_exists($pathName, $this->paths);
+    }
+
+    /**
+     * @param string $pathName
+     *
+     * @return PathItem
+     */
+    public function getPathItem(string $pathName): PathItem
+    {
+        return $this->paths[$pathName];
+    }
+
+    /**
      * @return null|array|Schema[]
      */
     public function getDefinitions():? array

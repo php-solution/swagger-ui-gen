@@ -2,8 +2,6 @@
 
 namespace PhpSolution\SwaggerUIGen\Component\Model;
 
-use PhpSolution\SwaggerUIGen\Component\Model\Common\CollectionAliasTrait;
-
 /**
  * Class PathItem
  *
@@ -19,8 +17,6 @@ class PathItem
     public const OPTIONS = 'options';
     public const HEAD = 'head';
     public const PATCH = 'patch';
-
-    use CollectionAliasTrait;
 
     /**
      * @var string|null

@@ -46,8 +46,7 @@ class RoutePaths implements SwaggerBuilderInterface, DataNormalizerInterface
     public function build(Swagger $swagger, array $configs): void
     {
         foreach ($configs['sf_route_paths'] ?? [] as $config) {
-            $pathItem = $this->pathItemFactory->createPathItemObject($config);
-            $swagger->addPathItem($pathItem->getCollectionItemAlias(), $pathItem);
+            $this->pathItemFactory->createPathItemObject($config, $swagger);
         }
     }
 }

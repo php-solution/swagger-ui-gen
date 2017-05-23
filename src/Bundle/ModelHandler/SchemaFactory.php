@@ -65,6 +65,9 @@ class SchemaFactory
     public function createSchemaObject(array $config, Schema $schema = null): Schema
     {
         $schema = $this->objectsFactory->createSchemaObject($config['openapi_params'] ?? [], $schema);
+        if (array_key_exists('$ref', $config)) {
+            $schema->setRef($config['$ref']);
+        }
         $schema->setType($config['type'] ?? self::TYPE_OBJECT);
         if (in_array($schema->getType(), self::COMPLEX_TYPES)) {
             $this->buildComplexSchemaObject($config, $schema);
