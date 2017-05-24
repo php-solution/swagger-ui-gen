@@ -109,6 +109,13 @@ class SwaggerModelExtractor
                     }
                 );
             },
+            Model\SecurityRequirement::class => function (ObjectExtractConfig $config) {
+                $config->setCustomExtractor(
+                    function (Model\SecurityRequirement $object) {
+                        return $object->getFields();
+                    }
+                );
+            },
         ];
     }
 }
