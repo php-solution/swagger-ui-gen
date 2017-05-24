@@ -81,3 +81,12 @@ services:
         class: 'PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Schema\ValidatorBuilder'
         arguments: ['@validator.mapping.class_metadata_factory']
         tags: [{name: 'swagger_uigen.model_builder.schema'}]
+
+    swagger_uigen.model_builder.schema.phpdoc:
+        public: false
+        class: 'PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Schema\PhpDoc\PhpDocSchemaBuilder'
+        arguments: ['@swagger_uigen.phpdoc_parser']
+        tags: [{name: 'swagger_uigen.model_builder.schema'}]
+    swagger_uigen.phpdoc_parser:
+        public: false
+        class: 'PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Schema\PhpDoc\PhpDocParser'

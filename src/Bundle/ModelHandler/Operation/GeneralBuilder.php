@@ -41,8 +41,23 @@ class GeneralBuilder implements OperationBuilderInterface
      */
     public function build(Operation $operation, array $config): void
     {
-        $operation->setSchemes($config['schemes'] ?? []);
-        $operation->setTags($config['tags'] ?? []);
+        foreach (['schemes', 'tags', 'description', 'externalDocs'] as $fieldName) {
+            if (array_key_exists($fieldName, $config) && $config[$fieldName]) {
+                $operation->{'set' . ucfirst($fieldName)}($config[$fieldName]);
+            }
+        }
+        if (array_key_exists('security', $config) && $config['security']) {
+            foreach ($config['security'] ?? [] as $securityConfigItem) {
+                $security = $this->openapiObjectFactory->createSecurityRequirement($securityConfigItem);
+                $operation->addSecurity($security);
+            }
+        }
+        if (array_key_exists('parameters', $config) && $config['parameters']) {
+            foreach ($config['parameters'] ?? [] as $parameterConfigItem) {
+                $parameter = $this->openapiObjectFactory->createParameterObject($parameterConfigItem);
+                $operation->addParameter($parameter);
+            }
+        }
         $response = $this->createResponse($config['response'] ?? []);
         $operation->addResponse($config['response']['status_code'] ?? 'default', $response);
     }
