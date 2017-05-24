@@ -93,33 +93,37 @@ class PathItemFactory
     private function createParametersFromRoute(Route $route): array
     {
         $result = [];
+        $routeDefaults = $route->getDefaults();
         foreach ($route->getDefaults() as $key => $value) {
             if ($key === '_controller') {
                 continue;
             }
             $generalInfo = new ParameterGeneralInfo();
             $generalInfo->setTypeByVariable($value);
-            $parameter = new Parameter();
-            $parameter->setName($key);
-            $parameter->setIn(Parameter::IN_QUERY);
+            $generalInfo->setDefault($value);
+            $parameter = new Parameter(Parameter::IN_QUERY, $key);
             $parameter->setGeneralInfo($generalInfo);
-            $result[] = $parameter;
+            $result[$key] = $parameter;
         }
 
         $routeRequirements = $route->getRequirements();
-        foreach ($route->compile()->getVariables() as $name) {
+        $routeCompile = $route->compile();
+        $routePathVars = $routeCompile->getPathVariables();
+        foreach ($routeCompile->getVariables() as $name) {
             $generalInfo = new ParameterGeneralInfo();
             $generalInfo->setType('string');
+            if (array_key_exists($name, $routeDefaults)) {
+                $generalInfo->setDefault($routeDefaults[$name]);
+            }
             $generalInfo->setPattern($routeRequirements[$name] ?? null);
 
-            $parameter = new Parameter();
-            $parameter->setName($name);
-            $parameter->setIn(Parameter::IN_QUERY);
+            $in = in_array($name, $routePathVars) ? Parameter::IN_PATH : Parameter::IN_QUERY;
+            $parameter = new Parameter($in, $name);
             $parameter->setRequired(true);
             $parameter->setGeneralInfo($generalInfo);
-            $result[] = $parameter;
+            $result[$name] = $parameter;
         }
 
-        return $result;
+        return array_values($result);
     }
 }
