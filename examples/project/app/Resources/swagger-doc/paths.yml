@@ -3,6 +3,8 @@ sf_route_paths:
     route: 'admin_list' # symfony route name, required
     tags: ['admin'] # openapi tags, not required, default value: []
     schemes: [] # openapi schemes, not required, default value: []
+    security:
+      - Bearer: []
     response: # use for operapi operation response, not required, default value: []
       status_code: 200 # not required, default value: "default"
       type: 'object' # not required, default value: "object", complex values: ['array', 'object', 'collection']

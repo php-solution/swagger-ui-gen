@@ -1,5 +1,35 @@
 defaultErros: &defaultResponceErrors
-    400:
-      description: "Invalid ID supplied"
-    404:
-      description: "Not found"
+  400: {description: "Invalid ID supplied"}
+  404: {description: "Not found"}
+
+defaultCodes: &defaultCodes
+  204: {description: "Success"}
+  400: {description: "Bad request"}
+  401: {description: "Not authenticate"}
+  403: {description: "Access denied"}
+  404: {description: "Not found"}
+  500: {description: "Internal server error"}
+
+defaultPaginationParams: &defaultPaginationParams
+  limit: {type: 'integer'}
+  total: {type: 'integer', openapi_params: {default: 0, minimum: 0}}
+  offset: {type: 'integer', openapi_params: {default: 0, minimum: 0}}
+
+defaultRequestPaginationParams: &defaultRequestPaginationParams
+  parameters:
+    - {name: 'offset', type: 'int', in: 'query', description: 'Offset' }
+    - {name: 'limit', type: 'int', in: 'query', description: 'Limit'}
+
+defaultGetRequestPaginationParams: &defaultGetRequestPaginationParams
+  openapi_params:
+    get:
+      <<: *defaultRequestPaginationParams
+
+defaultSecurity: &defaultSecurity
+  security:
+    - Bearer: []
+
+defaultGetSecurity: &defaultGetSecurity
+  openapi_params:
+    get:
+      <<: *defaultSecurity
