@@ -1,0 +1,2 @@
+_swagger_ui_gen:
+    resource: '@SwaggerUIGenBundle/Resources/config/routing.yml'
