@@ -21,6 +21,7 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root('swagger_ui_gen');
         $this->addOptionsFilesSection($rootNode);
+        $this->addHandlersSection($rootNode);
 
         return $treeBuilder;
     }
@@ -33,6 +34,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->arrayNode('options_provider')
+                    ->addDefaultsIfNotSet()
                     ->children()
                         ->arrayNode('defaults')
                             ->canBeUnset()
@@ -48,6 +50,16 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
+            ->end();
+    }
+
+    /**
+     * @param ArrayNodeDefinition $rootNode
+     */
+    private function addHandlersSection(ArrayNodeDefinition $rootNode): void
+    {
+        $rootNode
+            ->children()
                 ->arrayNode('handlers')
                     ->addDefaultsIfNotSet()
                     ->children()
