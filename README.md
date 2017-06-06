@@ -44,6 +44,12 @@ swagger_ui_gen:
             - '%kernel.root_dir%/Resources/swagger-doc/definitions.yml'
         folders:
             - '@ProjectAdminBundle/Resources/config/swagger-doc'
+    handlers:
+        validator: false
+        form: false
+        form_validator: false
+        serializer: false
+        doctrine_orm: false
 ````
 
 ## Generate file with Swagger Specification

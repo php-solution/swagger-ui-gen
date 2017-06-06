@@ -48,6 +48,16 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
+                ->arrayNode('handlers')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->scalarNode('validator')->defaultFalse()->end()
+                        ->scalarNode('form')->defaultFalse()->end()
+                        ->scalarNode('form_validator')->defaultFalse()->end()
+                        ->scalarNode('serializer')->defaultFalse()->end()
+                        ->scalarNode('doctrine_orm')->defaultFalse()->end()
+                    ->end()
+                ->end()
             ->end();
     }
 }

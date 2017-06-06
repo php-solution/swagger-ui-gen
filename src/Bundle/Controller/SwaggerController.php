@@ -30,7 +30,12 @@ class SwaggerController extends Controller
     {
         $configProvider = $this->get('swagger_uigen.data_provider');
         $schema = $this->get('swagger_uigen.swagger_provider')->getSwaggerData($configProvider);
+        if (class_exists('Symfony\Component\VarDumper\VarDumper')) {
+            $responseData = VarDumper::dump($schema);
+        } else {
+            $responseData = '<pre>' . print_r($schema, true);
+        }
 
-        return new Response(VarDumper::dump($schema));
+        return new Response($responseData);
     }
 }

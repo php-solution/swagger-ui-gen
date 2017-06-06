@@ -27,6 +27,7 @@ class SwaggerUIGenExtension extends Extension
         $loader->load('services.yml');
 
         $this->registerOptionsProvider($config, $container);
+        $this->registerHandlers($config, $container);
     }
 
     /**
@@ -39,5 +40,28 @@ class SwaggerUIGenExtension extends Extension
             ->replaceArgument(0, $config['options_provider']['files'])
             ->replaceArgument(1, $config['options_provider']['folders'])
             ->replaceArgument(2, $config['options_provider']['defaults']);
+    }
+
+    /**
+     * @param array            $config
+     * @param ContainerBuilder $container
+     */
+    private function registerHandlers(array $config, ContainerBuilder $container): void
+    {
+        if (!$config['handlers']['validator']) {
+            $container->removeDefinition('swagger_uigen.model_builder.schema.validator');
+        }
+        if (!$config['handlers']['form_validator']) {
+            $container->removeDefinition('swagger_uigen.model_builder.parameter.form_validator');
+        }
+        if (!$config['handlers']['form']) {
+            $container->removeDefinition('swagger_uigen.model_builder.operation.form_type');
+        }
+        if (!$config['handlers']['serializer']) {
+            $container->removeDefinition('swagger_uigen.model_builder.schema.serializer');
+        }
+        if (!$config['handlers']['doctrine_orm']) {
+            $container->removeDefinition('swagger_uigen.model_builder.schema.doctrine');
+        }
     }
 }
