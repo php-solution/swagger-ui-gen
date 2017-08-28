@@ -122,7 +122,7 @@ class FormValidatorBuilder
         $groups = self::getValidationGroups($form);
         $parentForm = $form->getParent();
 
-        if ($parentForm instanceof FormInterface && $form->getName() && $parentForm->getConfig()->hasOption('data_class')) {
+        if ($parentForm instanceof FormInterface && $form->getName() && $parentForm->getConfig()->getOption('data_class')) {
             $parentDataClass = $parentForm->getConfig()->getOption('data_class');
             /* @var $validationMetadata ClassMetadata */
             $validationMetadata = $this->classMetadataFactory->getMetadataFor($parentDataClass);

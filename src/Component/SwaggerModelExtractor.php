@@ -95,7 +95,7 @@ class SwaggerModelExtractor
                             $result = array_merge($result, $extractor->extract($generalInfo));
                         }
                         if (($schema = $parameter->getSchema()) instanceof Model\Schema) {
-                            $result = array_merge($result, $extractor->extract($schema));
+                            $result['schema'] = $extractor->extract($schema);
                         }
 
                         return $result;
