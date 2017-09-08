@@ -74,7 +74,7 @@ class FormValidatorBuilder
                     $parameter->getGeneralInfo()->setMinimum($constraint->min);
                 }
                 if (!is_null($constraint->max)) {
-                    $parameter->addDescription(sprintf('max: "%s"', $constraint->min));
+                    $parameter->addDescription(sprintf('max: "%s"', $constraint->max));
                     $parameter->getGeneralInfo()->setMaximum($constraint->max);
                 }
             },
