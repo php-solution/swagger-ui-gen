@@ -67,6 +67,11 @@ class FormTypeBuilder implements OperationBuilderInterface
     private $validatorBuilder;
 
     /**
+     * @var string
+     */
+    private $formMethod;
+
+    /**
      * FormTypeBuilder constructor.
      *
      * @param FormFactoryInterface $formFactory
@@ -114,7 +119,7 @@ class FormTypeBuilder implements OperationBuilderInterface
             $parameterInfo->setCollectionFormat(array_key_exists('multiple', $options) && $options['multiple'] ? 'multi' : null);
             $parameterInfo->setEnum($this->getParameterEnum($form));
 
-            $parameter = new Parameter(Parameter::IN_FORM_DATA, $this->getParameterName($form));
+            $parameter = new Parameter($this->formMethod === 'GET' ? Parameter::IN_QUERY : Parameter::IN_FORM_DATA, $this->getParameterName($form));
             $parameter->setDescription($config->getOption('label'));
             $parameter->setGeneralInfo($parameterInfo);
 
