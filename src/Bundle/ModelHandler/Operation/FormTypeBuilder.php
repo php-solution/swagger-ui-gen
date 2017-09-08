@@ -96,6 +96,7 @@ class FormTypeBuilder implements OperationBuilderInterface
         $config = $generalConfig['request'];
         $operation->setConsumes([self::CONSUMES]);
         $form = $this->formFactory->create($config['form_class'], null, $config['form_options'] ?? []);
+        $this->formMethod = $form->getConfig()->getMethod();
         foreach ($this->buildParameterModelList($form, new \ArrayObject()) as $parameterModel) {
             $operation->addParameter($parameterModel);
         }
