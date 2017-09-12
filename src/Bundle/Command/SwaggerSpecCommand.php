@@ -19,10 +19,11 @@ class SwaggerSpecCommand extends ContainerAwareCommand
      */
     public function configure(): void
     {
+        $defaultPath = __DIR__ . '/../../../../../../web/assets/swagger/data.json';
         $this
             ->setName('swagger-gen:generate-spec')
             ->setDescription('Command for generate json specification for swagger ui')
-            ->addOption('path', null, InputOption::VALUE_REQUIRED)
+            ->addOption('path', null, InputOption::VALUE_OPTIONAL, 'The destination of generated spec', $defaultPath)
             ->addOption('json_encode_options', null, InputOption::VALUE_OPTIONAL);
     }
 
