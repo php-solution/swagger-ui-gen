@@ -273,7 +273,7 @@ class FormTypeBuilder implements OperationBuilderInterface
         $result = [];
         /* @var ChoiceView $choiceView */
         foreach ($formView->vars['choices'] as $choiceView) {
-            $result[] = $choiceView->label;
+            $result[] = $choiceView->value;
         }
 
         return $result;
