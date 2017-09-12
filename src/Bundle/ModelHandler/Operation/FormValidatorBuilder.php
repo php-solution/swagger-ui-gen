@@ -58,7 +58,7 @@ class FormValidatorBuilder
     {
         return [
             Constraints\NotBlank::class => function (Parameter $parameter) {
-                $parameter->setRequired(true);
+                $parameter->addDescription('Not blank');
             },
             Constraints\Regex::class => function (Parameter $parameter, Constraints\Regex $constraint) {
                 $parameter->addDescription(sprintf('pattern: "%s"', $constraint->pattern));

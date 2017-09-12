@@ -23,14 +23,15 @@
     },
     "require-dev": {
         "phpunit/phpunit" : "~6.0",
-        "symfony/var-dumper": "~3.0",
-        "symfony/form": "~3.0"
+        "symfony/form": "~3.0",
+        "symfony/validator": "~3.0",
+        "symfony/var-dumper": "~3.0"
     },
     "suggest": {
-        "symfony/validator": "For using Symfony validator OpenApi Schema Handler",
+        "doctrine/orm": "For using Doctrine ORM OpenApi Schema Handler",
         "symfony/form": "For using Symfony form type OpenApi Operation Handler",
         "symfony/serializer": "For using Symfony serializer OpenApi Operation Handler",
-        "doctrine/orm": "For using Doctrine ORM OpenApi Schema Handler"
+        "symfony/validator": "For using Symfony validator OpenApi Schema Handler"
     },
     "autoload":     {
         "psr-4": { "PhpSolution\\SwaggerUIGen\\": "src" }
