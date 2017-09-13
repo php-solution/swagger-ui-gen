@@ -6,6 +6,7 @@ use PhpSolution\SwaggerUIGen\Component\Model\Items;
 use PhpSolution\SwaggerUIGen\Component\Model\Operation;
 use PhpSolution\SwaggerUIGen\Component\Model\Parameter;
 use PhpSolution\SwaggerUIGen\Component\Model\ParameterGeneralInfo;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\ChoiceList\View\ChoiceView;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
@@ -267,7 +268,7 @@ class FormTypeBuilder implements OperationBuilderInterface
     private function getParameterEnum(FormInterface $form):? array
     {
         $formView = $form->createView();
-        if (!isset($formView->vars['choices'])) {
+        if ($form->getConfig()->getType()->getInnerType() instanceof EntityType || !isset($formView->vars['choices'])) {
             return null;
         }
         $result = [];
