@@ -176,7 +176,7 @@ class FormTypeBuilder implements OperationBuilderInterface
     private function isTypeCollection(FormTypeInterface $form): bool
     {
         foreach ($this->collectionTypes as $type) {
-            if (is_subclass_of($form, $type)) {
+            if (is_subclass_of($form, $type) || $form instanceof $type) {
                 return true;
             }
         }
@@ -267,8 +267,11 @@ class FormTypeBuilder implements OperationBuilderInterface
      */
     private function getParameterEnum(FormInterface $form):? array
     {
+        if ($form->getConfig()->getType()->getInnerType() instanceof EntityType) {
+            return null;
+        }
         $formView = $form->createView();
-        if ($form->getConfig()->getType()->getInnerType() instanceof EntityType || !isset($formView->vars['choices'])) {
+        if (!isset($formView->vars['choices'])) {
             return null;
         }
         $result = [];

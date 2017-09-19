@@ -107,6 +107,15 @@ class FormValidatorBuilder
                     $parameter->getGeneralInfo()->setFormat(DataTypeFormat::FORMAT_IPV6);
                 }
             },
+            Constraints\Url::class => function (Parameter $parameter) {
+                $parameter->addDescription('Valid URL');
+            },
+            Constraints\GreaterThanOrEqual::class => function (Parameter $parameter, Constraints\GreaterThanOrEqual $constraint) {
+                $parameter->addDescription(sprintf('min: "%s"', $constraint->value));
+            },
+            Constraints\LessThanOrEqual::class => function (Parameter $parameter, Constraints\LessThanOrEqual $constraint) {
+                $parameter->addDescription(sprintf('max: "%s"', $constraint->value));
+            },
         ];
     }
 
