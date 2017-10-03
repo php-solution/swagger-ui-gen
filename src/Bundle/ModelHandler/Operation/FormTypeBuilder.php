@@ -2,10 +2,12 @@
 
 namespace PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Operation;
 
+use Doctrine\Bundle\DoctrineBundle\Registry;
 use PhpSolution\SwaggerUIGen\Component\Model\Items;
 use PhpSolution\SwaggerUIGen\Component\Model\Operation;
 use PhpSolution\SwaggerUIGen\Component\Model\Parameter;
 use PhpSolution\SwaggerUIGen\Component\Model\ParameterGeneralInfo;
+use PhpSolution\SwaggerUIGen\Component\Model\Schema;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\ChoiceList\View\ChoiceView;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -20,6 +22,8 @@ use Symfony\Component\Form\FormTypeInterface;
 class FormTypeBuilder implements OperationBuilderInterface
 {
     private const CONSUMES = 'application/x-www-form-urlencoded';
+    private const CONSUMES_MULTIPART = 'multipart/form-data';
+    private const CONSUMES_JSON = 'application/json';
     private const INTL_DATE_TRANSFORM = [
         \IntlDateFormatter::NONE => '',
         \IntlDateFormatter::FULL => "EEEE, MMMM d, y 'at' h:mm:ss a zzzz",
@@ -31,6 +35,12 @@ class FormTypeBuilder implements OperationBuilderInterface
      * @var FormFactoryInterface
      */
     private $formFactory;
+
+    /**
+     * @var Registry $doctrine
+     */
+    private $doctrine;
+
     /**
      * @var array
      */
@@ -39,7 +49,8 @@ class FormTypeBuilder implements OperationBuilderInterface
             'Symfony\Component\Form\Extension\Core\Type\CheckboxType',
         ],
         ParameterGeneralInfo::TYPE_INTEGER => [
-            'Symfony\Component\Form\Extension\Core\Type\IntegerType'
+            'Symfony\Component\Form\Extension\Core\Type\IntegerType',
+            'Symfony\Bridge\Doctrine\Form\Type\EntityType',
         ],
         ParameterGeneralInfo::TYPE_NUMBER => [
             'Symfony\Component\Form\Extension\Core\Type\NumberType'
@@ -73,15 +84,22 @@ class FormTypeBuilder implements OperationBuilderInterface
     private $formMethod;
 
     /**
+     * @var bool
+     */
+    private $hasFileType = false;
+
+    /**
      * FormTypeBuilder constructor.
      *
      * @param FormFactoryInterface $formFactory
      * @param FormValidatorBuilder $validatorBuilder
+     * @param Registry             $doctrine
      */
-    public function __construct(FormFactoryInterface $formFactory, FormValidatorBuilder $validatorBuilder)
+    public function __construct(FormFactoryInterface $formFactory, FormValidatorBuilder $validatorBuilder, Registry $doctrine)
     {
         $this->formFactory = $formFactory;
         $this->validatorBuilder = $validatorBuilder;
+        $this->doctrine = $doctrine;
     }
 
     /**
@@ -95,12 +113,111 @@ class FormTypeBuilder implements OperationBuilderInterface
         }
 
         $config = $generalConfig['request'];
-        $operation->setConsumes([self::CONSUMES]);
         $form = $this->formFactory->create($config['form_class'], null, $config['form_options'] ?? []);
         $this->formMethod = $form->getConfig()->getMethod();
-        foreach ($this->buildParameterModelList($form, new \ArrayObject()) as $parameterModel) {
-            $operation->addParameter($parameterModel);
+        $this->hasFileType = false;
+
+        if (array_key_exists('in', $config) && 'body' === $config['in'] && in_array($this->formMethod, ['POST', 'PUT', 'PATCH'])) {
+            $operation->setConsumes([self::CONSUMES_JSON]);
+            $operation->addParameter($this->buildObjectModel($form));
+        } else {
+            foreach ($this->buildParameterModelList($form, new \ArrayObject()) as $parameterModel) {
+                $operation->addParameter($parameterModel);
+            }
+
+            if ($this->hasFileType) {
+                $operation->setConsumes([self::CONSUMES_MULTIPART]);
+            } else {
+                $operation->setConsumes([self::CONSUMES]);
+            }
         }
+    }
+
+    /**
+     * @param FormInterface $form
+     * @param bool          $isCollection
+     *
+     * @return Parameter
+     */
+    private function buildObjectModel(FormInterface $form, bool $isCollection = false): Parameter
+    {
+        $config = $form->getConfig();
+
+        $parameter = new Parameter(Parameter::IN_BODY, $this->getParameterName($form));
+        $parameter->setDescription($config->getOption('label'));
+        $parameter->setName(Parameter::IN_BODY);
+        $parameter->setRequired(true);
+
+        $schema = new Schema('object');
+        $parameter->setSchema($schema);
+
+        /* @var $childForm FormInterface */
+        foreach ($form as $childForm) {
+            $this->buildPropertyList($childForm, $schema, $isCollection);
+        }
+
+        return $parameter;
+    }
+
+    /**
+     * @param FormInterface $form
+     * @param Schema        $schema
+     * @param bool          $isCollection
+     */
+    private function buildPropertyList(FormInterface $form, Schema $schema, bool $isCollection = false)
+    {
+        $config = $form->getConfig();
+
+        if (!$this->isIgnoredFormType($form)) {
+            $property = new Schema($this->getParameterType($form));
+            $property->setFormat($this->getParameterFormat($form));
+            $property->setDescription($config->getOption('label'));
+            $schema->addProperty($this->getPropertyName($form), $property);
+
+            if ($this->validatorBuilder->isRequired($form)) {
+                $schema->addRequired($this->getPropertyName($form));
+            }
+        } else {
+            if ($this->isTypeCollection($config->getType()->getInnerType())) {
+                $property = new Schema('array');
+                $property->setItems($this->buildItemList($form));
+                $schema->addProperty($this->getPropertyName($form), $property);
+            } else {
+                if ('__name__' !== $this->getPropertyName($form)) {
+                    $property = new Schema('object');
+                    $schema->addProperty($this->getPropertyName($form), $property);
+                }
+            }
+
+            if (isset($property)) {
+                $schema = $property;
+            }
+        }
+
+        /* @var $childForm FormInterface */
+        foreach ($form as $childForm) {
+            $this->buildPropertyList($childForm, $schema, $isCollection);
+        }
+    }
+
+    /**
+     * @param FormInterface $form
+     *
+     * @return Schema
+     */
+    private function buildItemList(FormInterface $form): Schema
+    {
+        $config = $form->getConfig();
+
+        $schema = new Schema('object');
+
+        $prototype = $config->getAttribute('prototype', null);
+        if ($prototype instanceof FormInterface) {
+            $prototype->setParent($form);
+            $this->buildPropertyList($prototype, $schema, true);
+        }
+
+        return $schema;
     }
 
     /**
@@ -115,6 +232,10 @@ class FormTypeBuilder implements OperationBuilderInterface
         $config = $form->getConfig();
         $options = $config->getOptions();
         if (!$this->isIgnoredFormType($form)) {
+            if ('Symfony\Component\HttpFoundation\File\File' === $config->getDataClass()) {
+                $this->hasFileType = true;
+            }
+
             $parameterInfo = new ParameterGeneralInfo();
             $parameterInfo->setType($this->getParameterType($form));
             $parameterInfo->setFormat($this->getParameterFormat($form));
@@ -225,6 +346,26 @@ class FormTypeBuilder implements OperationBuilderInterface
             $optionFormat = self::INTL_DATE_TRANSFORM[$optionFormat] ?? '';
         }
 
+        if ($form->getParent()->getConfig()->getOption('data_class')) {
+            $metadata = $this->doctrine->getManager()->getClassMetadata($form->getParent()->getConfig()->getOption('data_class'));
+
+            $name = $this->getPropertyName($form);
+            if ($metadata->hasField($name)) {
+                $fieldMetadata = $metadata->getFieldMapping($name);
+
+                if ('string' !== $fieldMetadata['type']) {
+                    switch ($fieldMetadata['type']) {
+                        case 'integer':
+                            $optionFormat = 'int32';
+                            break;
+                        case 'float':
+                            $optionFormat = 'float';
+                            break;
+                    }
+                }
+            }
+        }
+
         return $optionFormat;
     }
 
@@ -241,7 +382,7 @@ class FormTypeBuilder implements OperationBuilderInterface
 
         foreach ($this->typeFormMap as $parameterType => $mapFormClasses) {
             foreach ($mapFormClasses as $mapFormClass) {
-                if (is_subclass_of($formClass, $mapFormClass) || is_subclass_of($parentFormClass, $mapFormClass)) {
+                if (is_subclass_of($formClass, $mapFormClass) || is_subclass_of($parentFormClass, $mapFormClass) || $formClass === $mapFormClass) {
                     return $parameterType;
                 }
             }
@@ -258,6 +399,16 @@ class FormTypeBuilder implements OperationBuilderInterface
     private function getParameterName(FormInterface $form): string
     {
         return str_replace('__name__', '', $form->createView()->vars['full_name']);
+    }
+
+    /**
+     * @param FormInterface $form
+     *
+     * @return string
+     */
+    private function getPropertyName(FormInterface $form): string
+    {
+        return $form->createView()->vars['name'];
     }
 
     /**

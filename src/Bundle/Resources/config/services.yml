@@ -50,7 +50,7 @@ services:
     swagger_uigen.model_builder.operation.form_type:
         public: false
         class: 'PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Operation\FormTypeBuilder'
-        arguments: ['@form.factory', '@swagger_uigen.model_builder.parameter.form_validator']
+        arguments: ['@form.factory', '@swagger_uigen.model_builder.parameter.form_validator', '@doctrine']
         tags: [{name: 'swagger_uigen.model_builder.operation'}]
 
     swagger_uigen.model_builder.parameter.form_validator:

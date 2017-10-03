@@ -18,7 +18,6 @@ class Parameter
     public const IN_QUERY = 'query';
     public const IN_PATH = 'path';
     public const IN_FORM_DATA = 'formData';
-    public const IN_NODY = 'body';
 
     use NameOptionalTrait, DescriptionTrait, RequiredTrait;
 

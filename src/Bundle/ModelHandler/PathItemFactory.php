@@ -72,7 +72,13 @@ class PathItemFactory
         $parameters = $this->createParametersFromRoute($routeInfo);
         foreach ($config['methods'] ?? $routeInfo->getMethods() as $method) {
             $method = strtolower($method);
-            $operation = $pathItem->getOperation($method) ?: new Operation();
+            if ($pathItem->hasOperation($method)) {
+                $operation = $pathItem->getOperation($method);
+            } elseif (array_key_exists('openapi_params', $config) && array_key_exists($method, $config['openapi_params'])) {
+                $operation = $this->openapiObjectFactory->createOperationObject($config['openapi_params'][$method]);
+            } else {
+                $operation = new Operation();
+            }
             $operation->mergeToParameters($parameters);
             foreach ($this->operationBuilders as $operationBuilder) {
                 $operationBuilder->build($operation, $config);
