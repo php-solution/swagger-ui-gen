@@ -97,6 +97,15 @@ class PathItem
         return $this->operations[$name] ?? null;
     }
 
+    /**
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function hasOperation(string $name): bool
+    {
+        return array_key_exists($name, $this->operations);
+    }
 
     /**
      * @param string         $name

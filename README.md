@@ -26,7 +26,7 @@ $ composer require php-solution/swagger-ui-gen
 3. Change on index.html url to swagger openapi specification
 ````
 const ui = SwaggerUIBundle({
-    url: "http://localhost/assets/swagger-spec.json",    
+    url: "http://localhost/assets/swagger-spec.json",
 })
 ````
 
@@ -140,6 +140,7 @@ sf_route_paths:
     tags: ['admin']
     request:
       form_class: 'Project\AdminBundle\Form\Type\MultipleAdminType'
+      in: 'body' # use this option if you want to send data as json
     response:
       type: 'collection'
       openapi_params: {$ref: '#/definitions/Admin'}

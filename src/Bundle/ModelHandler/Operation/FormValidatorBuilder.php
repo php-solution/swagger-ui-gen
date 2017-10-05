@@ -52,6 +52,24 @@ class FormValidatorBuilder
     }
 
     /**
+     * @param FormInterface $form
+     *
+     * @return bool
+     */
+    public function isRequired(FormInterface $form): bool
+    {
+        $constraints = $this->getFormConstraints($form);
+
+        foreach ($constraints as $constraint) {
+            if (is_a($constraint, 'Symfony\Component\Validator\Constraints\NotBlank')) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @return array
      */
     private function getConstraintBuilders(): array
@@ -136,6 +154,12 @@ class FormValidatorBuilder
             /* @var $validationMetadata ClassMetadata */
             $validationMetadata = $this->classMetadataFactory->getMetadataFor($parentDataClass);
             $propertyMetadata = $validationMetadata->getPropertyMetadata($form->getName());
+
+            if (!$propertyMetadata && $form->getPropertyPath()->getLength()) {
+                foreach ($form->getPropertyPath()->getElements() as $element) {
+                    $propertyMetadata = array_merge($propertyMetadata, $validationMetadata->getPropertyMetadata($element));
+                }
+            }
 
             $constraints = [];
             foreach ($groups as $group) {
