@@ -172,6 +172,7 @@ class FormTypeBuilder implements OperationBuilderInterface
             $property = new Schema($this->getParameterType($form));
             $property->setFormat($this->getParameterFormat($form));
             $property->setDescription($config->getOption('label'));
+            $this->validatorBuilder->buildFormParameter($property, $form);
             $schema->addProperty($this->getPropertyName($form), $property);
 
             if ($this->validatorBuilder->isRequired($form)) {
@@ -356,7 +357,7 @@ class FormTypeBuilder implements OperationBuilderInterface
                 if ('string' !== $fieldMetadata['type']) {
                     switch ($fieldMetadata['type']) {
                         case 'integer':
-                            $optionFormat = 'int32';
+                            $optionFormat = 'int64';
                             break;
                         case 'float':
                             $optionFormat = 'float';
@@ -382,7 +383,11 @@ class FormTypeBuilder implements OperationBuilderInterface
 
         foreach ($this->typeFormMap as $parameterType => $mapFormClasses) {
             foreach ($mapFormClasses as $mapFormClass) {
-                if (is_subclass_of($formClass, $mapFormClass) || is_subclass_of($parentFormClass, $mapFormClass) || $formClass === $mapFormClass) {
+                if (is_subclass_of($formClass, $mapFormClass)
+                    || is_subclass_of($parentFormClass, $mapFormClass)
+                    || $formClass === $mapFormClass
+                    || $parentFormClass === $mapFormClass
+                ) {
                     return $parameterType;
                 }
             }

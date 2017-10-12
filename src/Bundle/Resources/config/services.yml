@@ -44,7 +44,7 @@ services:
     swagger_uigen.model_builder.operation.general:
         public: false
         class: 'PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Operation\GeneralBuilder'
-        arguments: ['@swagger_uigen.model_factory.general', '@swagger_uigen.model_factory.schema']
+        arguments: ['@swagger_uigen.model_factory.general', '@swagger_uigen.model_factory.schema', '@router.default', '@annotations.reader']
         tags: [{name: 'swagger_uigen.model_builder.operation'}]
 
     swagger_uigen.model_builder.operation.form_type:
