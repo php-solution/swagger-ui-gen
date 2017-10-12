@@ -4,6 +4,7 @@ namespace PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Operation;
 
 use PhpSolution\SwaggerUIGen\Component\Model\DataTypeFormat;
 use PhpSolution\SwaggerUIGen\Component\Model\Parameter;
+use PhpSolution\SwaggerUIGen\Component\Model\Schema;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\GroupSequence;
@@ -35,10 +36,10 @@ class FormValidatorBuilder
     }
 
     /**
-     * @param Parameter     $parameter
+     * @param mixed     $parameter
      * @param FormInterface $form
      */
-    public function buildFormParameter(Parameter $parameter, FormInterface $form): void
+    public function buildFormParameter($parameter, FormInterface $form): void
     {
         $builders = $this->getConstraintBuilders();
         foreach ($this->getFormConstraints($form) as $constraint) {
@@ -75,63 +76,78 @@ class FormValidatorBuilder
     private function getConstraintBuilders(): array
     {
         return [
-            Constraints\NotBlank::class => function (Parameter $parameter) {
+            Constraints\NotBlank::class => function ($parameter) {
+                /** @var $parameter Parameter|Schema */
                 $parameter->addDescription('Not blank');
             },
-            Constraints\Regex::class => function (Parameter $parameter, Constraints\Regex $constraint) {
+            Constraints\Regex::class => function ($parameter, Constraints\Regex $constraint) {
+                /** @var $parameter Parameter|Schema */
                 $parameter->addDescription(sprintf('pattern: "%s"', $constraint->pattern));
                 $parameter->getGeneralInfo()->setPattern($constraint->pattern);
             },
-            Constraints\Choice::class => function (Parameter $parameter, Constraints\Choice $constraint) {
+            Constraints\Choice::class => function ($parameter, Constraints\Choice $constraint) {
+                /** @var $parameter Parameter|Schema */
                 $parameter->addDescription(sprintf('enum: "%s"', print_r($constraint->choices, true)));
                 $parameter->getGeneralInfo()->setEnum($constraint->choices);
             },
-            Constraints\Length::class => function (Parameter $parameter, Constraints\Length $constraint) {
+            Constraints\Length::class => function ($parameter, Constraints\Length $constraint) {
                 if (!is_null($constraint->max)) {
+                    /** @var $parameter Parameter|Schema */
                     $parameter->addDescription(sprintf('min: "%s"', $constraint->min));
                     $parameter->getGeneralInfo()->setMinimum($constraint->min);
                 }
                 if (!is_null($constraint->max)) {
+                    /** @var $parameter Parameter|Schema */
                     $parameter->addDescription(sprintf('max: "%s"', $constraint->max));
                     $parameter->getGeneralInfo()->setMaximum($constraint->max);
                 }
             },
-            Constraints\Type::class => function (Parameter $parameter, Constraints\Type $constraint) {
+            Constraints\Type::class => function ($parameter, Constraints\Type $constraint) {
+                /** @var $parameter Parameter|Schema */
                 $parameter->addDescription(sprintf('type: "%s"', $constraint->type));
                 $parameter->getGeneralInfo()->setType($constraint->type);
             },
-            Constraints\Date::class => function (Parameter $parameter) {
+            Constraints\Date::class => function ($parameter) {
+                /** @var $parameter Parameter|Schema */
                 $parameter->addDescription(sprintf('format: "%s"', DataTypeFormat::FORMAT_DATE));
                 $parameter->getGeneralInfo()->setFormat(DataTypeFormat::FORMAT_DATE);
             },
-            Constraints\DateTime::class => function (Parameter $parameter) {
+            Constraints\DateTime::class => function ($parameter) {
+                /** @var $parameter Parameter|Schema */
                 $parameter->addDescription(sprintf('format: "%s"', DataTypeFormat::FORMAT_DATETIME));
                 $parameter->getGeneralInfo()->setFormat(DataTypeFormat::FORMAT_DATETIME);
             },
-            Constraints\Time::class => function (Parameter $parameter) {
+            Constraints\Time::class => function ($parameter) {
+                /** @var $parameter Parameter|Schema */
                 $parameter->addDescription(sprintf('format: "%s"', DataTypeFormat::FORMAT_TIME));
                 $parameter->getGeneralInfo()->setFormat(DataTypeFormat::FORMAT_TIME);
             },
-            Constraints\Email::class => function (Parameter $parameter) {
+            Constraints\Email::class => function ($parameter) {
+                /** @var $parameter Parameter|Schema */
                 $parameter->addDescription(sprintf('format: "%s"', DataTypeFormat::FORMAT_EMAIL));
                 $parameter->getGeneralInfo()->setFormat(DataTypeFormat::FORMAT_EMAIL);
             },
-            Constraints\Ip::class => function (Parameter $parameter, Constraints\Ip $constraint) {
+            Constraints\Ip::class => function ($parameter, Constraints\Ip $constraint) {
                 if (Constraints\Ip::V4 === $constraint->version) {
+                    /** @var $parameter Parameter|Schema */
                     $parameter->addDescription(sprintf('format: "%s"', DataTypeFormat::FORMAT_IPADDRESS));
                     $parameter->getGeneralInfo()->setFormat(DataTypeFormat::FORMAT_IPADDRESS);
                 } elseif (Constraints\Ip::V6 === $constraint->version) {
+                    /** @var $parameter Parameter|Schema */
                     $parameter->addDescription(sprintf('format: "%s"', DataTypeFormat::FORMAT_IPV6));
                     $parameter->getGeneralInfo()->setFormat(DataTypeFormat::FORMAT_IPV6);
                 }
             },
-            Constraints\Url::class => function (Parameter $parameter) {
+            Constraints\Url::class => function ($parameter) {
+                /** @var $parameter Parameter|Schema */
                 $parameter->addDescription('Valid URL');
             },
-            Constraints\GreaterThanOrEqual::class => function (Parameter $parameter, Constraints\GreaterThanOrEqual $constraint) {
+            Constraints\GreaterThanOrEqual::class => function ($parameter, Constraints\GreaterThanOrEqual $constraint) {
+                /** @var $parameter Parameter|Schema */
                 $parameter->addDescription(sprintf('min: "%s"', $constraint->value));
             },
-            Constraints\LessThanOrEqual::class => function (Parameter $parameter, Constraints\LessThanOrEqual $constraint) {
+            Constraints\LessThanOrEqual::class => function ($parameter, Constraints\LessThanOrEqual $constraint) {
+                /** @var $parameter Parameter|Schema */
                 $parameter->addDescription(sprintf('max: "%s"', $constraint->value));
             },
         ];

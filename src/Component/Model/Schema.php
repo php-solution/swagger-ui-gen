@@ -2,6 +2,8 @@
 
 namespace PhpSolution\SwaggerUIGen\Component\Model;
 
+use PhpSolution\SwaggerUIGen\Component\Model\Common\DescriptionTrait;
+
 /**
  * Class Schema
  *
@@ -9,14 +11,12 @@ namespace PhpSolution\SwaggerUIGen\Component\Model;
  */
 class Schema
 {
+    use DescriptionTrait;
+
     /**
      * @var string
      */
     private $ref;
-    /**
-     * @var string|null
-     */
-    private $description;
     /**
      * @var string
      */
@@ -190,22 +190,6 @@ class Schema
     public function setTitle(?string $title)
     {
         $this->title = $title;
-    }
-
-    /**
-     * @return string
-     */
-    public function getDescription(): string
-    {
-        return $this->description;
-    }
-
-    /**
-     * @param string $description
-     */
-    public function setDescription(?string $description)
-    {
-        $this->description = $description;
     }
 
     /**
@@ -724,5 +708,13 @@ class Schema
     public function getParent():? Schema
     {
         return $this->parent;
+    }
+
+    /**
+     * @return Schema
+     */
+    public function getGeneralInfo(): Schema
+    {
+        return $this;
     }
 }
