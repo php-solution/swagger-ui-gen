@@ -1,0 +1,5 @@
+services:
+    PhpSolution\SwaggerUIGen\Bundle\Command\SwaggerSpecCommand:
+        arguments: ["@swagger_uigen.data_provider", "@swagger_uigen.swagger_provider"]
+        tags:
+          - { name: console.command }

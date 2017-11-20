@@ -2,7 +2,9 @@
 
 namespace PhpSolution\SwaggerUIGen\Bundle\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use PhpSolution\SwaggerUIGen\Component\DataProvider\DataProviderInterface;
+use PhpSolution\SwaggerUIGen\Component\SwaggerProvider;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -12,8 +14,32 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @package PhpSolution\SwaggerUIGen\Bundle\Command
  */
-class SwaggerSpecCommand extends ContainerAwareCommand
+class SwaggerSpecCommand extends Command
 {
+    /**
+     * @var DataProviderInterface
+     */
+    private $dataProvider;
+
+    /**
+     * @var SwaggerProvider
+     */
+    private $swaggerProvider;
+
+    /**
+     * SwaggerSpecCommand constructor.
+     * @param DataProviderInterface $dataProvider
+     * @param SwaggerProvider $swaggerProvider
+     */
+    public function __construct(DataProviderInterface $dataProvider, SwaggerProvider $swaggerProvider)
+    {
+        parent::__construct('swagger-gen:generate-spec');
+
+        $this->dataProvider = $dataProvider;
+        $this->swaggerProvider = $swaggerProvider;
+    }
+
+
     /**
      * Configure command
      */
@@ -35,9 +61,7 @@ class SwaggerSpecCommand extends ContainerAwareCommand
      */
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $container = $this->getContainer();
-        $configProvider = $container->get('swagger_uigen.data_provider');
-        $swaggerSpec = $container->get('swagger_uigen.swagger_provider')->getSwaggerData($configProvider);
+        $swaggerSpec = $this->swaggerProvider->getSwaggerData($this->dataProvider);
         $jsonData = json_encode($swaggerSpec, $input->getOption('json_encode_options'));
 
         file_put_contents($input->getOption('path'), $jsonData);
