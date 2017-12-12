@@ -63,7 +63,7 @@ class FormTypeBuilder implements OperationBuilderInterface
         ],
     ];
     private $collectionTypes = [
-        'Symfony\Component\Form\Extension\Core\Type\CollectionType'
+        'Symfony\Component\Form\Extension\Core\Type\CollectionType',
     ];
     /**
      * @var array
@@ -239,7 +239,12 @@ class FormTypeBuilder implements OperationBuilderInterface
 
             $parameterInfo = new ParameterGeneralInfo();
             $parameterInfo->setType($this->getParameterType($form));
-            $parameterInfo->setFormat($this->getParameterFormat($form));
+
+            // array data type can not have format field. see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#dataTypeFormat
+            if ('array' != $this->getParameterType($form)) {
+                $parameterInfo->setFormat($this->getParameterFormat($form));
+            }
+
             $parameterInfo->setCollectionFormat(array_key_exists('multiple', $options) && $options['multiple'] ? 'multi' : null);
             $parameterInfo->setEnum($this->getParameterEnum($form));
 
@@ -247,16 +252,32 @@ class FormTypeBuilder implements OperationBuilderInterface
             $parameter->setDescription($config->getOption('label'));
             $parameter->setGeneralInfo($parameterInfo);
 
+            if ($this->validatorBuilder->isRequired($form)) {
+                $parameter->setRequired(true);
+            }
+
             // Build via form type validator
             $this->validatorBuilder->buildFormParameter($parameter, $form);
 
-            if ($isCollection) {
+            /**
+             * items is Required if type is "array"
+             * https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#fixed-fields-7
+             */
+            if ($isCollection || 'array' === $this->getParameterType($form)) {
                 $items = new Items($parameterInfo->getType());
                 if ($parameterInfo->getEnum()) {
                     $subItems = new Items($parameterInfo->getType());
                     $subItems->setEnum($parameterInfo->getEnum());
-                    $items->setType('array');
-                    $items->setItems($subItems);
+
+                    if ($isCollection) {
+                        $items->setType('array');
+                        $items->setItems($subItems);
+                    } else {
+                        $enum = $parameterInfo->getEnum();
+                        $subItems->setType(gettype(array_pop($enum)));
+                        $items = $subItems;
+                    }
+
                     $parameterInfo->setEnum(null);
                 }
                 $parameterInfo->setItems($items);
