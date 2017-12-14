@@ -368,7 +368,7 @@ class FormTypeBuilder implements OperationBuilderInterface
             $optionFormat = self::INTL_DATE_TRANSFORM[$optionFormat] ?? '';
         }
 
-        if ($form->getParent()->getConfig()->getOption('data_class')) {
+        if ($form->getParent() && $form->getParent()->getConfig()->getOption('data_class')) {
             $metadata = $this->doctrine->getManager()->getClassMetadata($form->getParent()->getConfig()->getOption('data_class'));
 
             $name = $this->getPropertyName($form);

@@ -41,7 +41,7 @@ class DataProviderFactory
         foreach ($dirPaths as $dirPath) {
             $dir = $this->fileLocator->locate($dirPath);
             /* @var $file \Symfony\Component\Finder\SplFileInfo */
-            foreach (Finder::create()->files()->in($dir)->name('*.yml') as $file) {
+            foreach (Finder::create()->files()->in($dir)->name('*.{yml,yaml}') as $file) {
                 $realPaths[] = $file->getPathname();
             }
         }
