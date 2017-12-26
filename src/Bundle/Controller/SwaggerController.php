@@ -2,39 +2,43 @@
 
 namespace PhpSolution\SwaggerUIGen\Bundle\Controller;
 
+use PhpSolution\SwaggerUIGen\Component\DataProvider\DataProviderInterface;
+use PhpSolution\SwaggerUIGen\Component\SwaggerProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\VarDumper\VarDumper;
 
 /**
- * Class SwaggerController
+ * SwaggerController
  */
 class SwaggerController extends Controller
 {
     /**
+     * @param DataProviderInterface $configProvider
+     * @param SwaggerProvider       $swaggerProvider
+     *
      * @return JsonResponse
      */
-    public function dataAction(): JsonResponse
+    public function dataAction(DataProviderInterface $configProvider, SwaggerProvider $swaggerProvider): JsonResponse
     {
-        $configProvider = $this->get('swagger_uigen.data_provider');
-        $schema = $this->get('swagger_uigen.swagger_provider')->getSwaggerData($configProvider);
+        $schema = $swaggerProvider->getSwaggerData($configProvider);
 
         return new JsonResponse($schema, 200, ['Content-Type' => 'application/json']);
     }
 
     /**
+     * @param DataProviderInterface $configProvider
+     * @param SwaggerProvider       $swaggerProvider
+     *
      * @return Response
      */
-    public function dumpAction(): Response
+    public function dumpAction(DataProviderInterface $configProvider, SwaggerProvider $swaggerProvider): Response
     {
-        $configProvider = $this->get('swagger_uigen.data_provider');
-        $schema = $this->get('swagger_uigen.swagger_provider')->getSwaggerData($configProvider);
-        if (class_exists('Symfony\Component\VarDumper\VarDumper')) {
-            $responseData = VarDumper::dump($schema);
-        } else {
-            $responseData = '<pre>' . print_r($schema, true);
-        }
+        $schema = $swaggerProvider->getSwaggerData($configProvider);
+        class_exists('Symfony\Component\VarDumper\VarDumper')
+            ? $responseData = VarDumper::dump($schema)
+            : $responseData = '<pre>' . print_r($schema, true);
 
         return new Response($responseData);
     }

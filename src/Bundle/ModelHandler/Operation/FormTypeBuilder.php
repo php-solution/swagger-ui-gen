@@ -2,13 +2,13 @@
 
 namespace PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Operation;
 
-use Doctrine\Bundle\DoctrineBundle\Registry;
 use PhpSolution\SwaggerUIGen\Component\Model\Items;
 use PhpSolution\SwaggerUIGen\Component\Model\Operation;
 use PhpSolution\SwaggerUIGen\Component\Model\Parameter;
 use PhpSolution\SwaggerUIGen\Component\Model\ParameterGeneralInfo;
 use PhpSolution\SwaggerUIGen\Component\Model\Schema;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Bridge\Doctrine\RegistryInterface;
 use Symfony\Component\Form\ChoiceList\View\ChoiceView;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
@@ -93,9 +93,9 @@ class FormTypeBuilder implements OperationBuilderInterface
      *
      * @param FormFactoryInterface $formFactory
      * @param FormValidatorBuilder $validatorBuilder
-     * @param Registry             $doctrine
+     * @param RegistryInterface    $doctrine
      */
-    public function __construct(FormFactoryInterface $formFactory, FormValidatorBuilder $validatorBuilder, Registry $doctrine)
+    public function __construct(FormFactoryInterface $formFactory, FormValidatorBuilder $validatorBuilder, RegistryInterface $doctrine)
     {
         $this->formFactory = $formFactory;
         $this->validatorBuilder = $validatorBuilder;

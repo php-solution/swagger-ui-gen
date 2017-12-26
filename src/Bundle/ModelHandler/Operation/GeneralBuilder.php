@@ -7,12 +7,10 @@ use PhpSolution\SwaggerUIGen\Bundle\ModelHandler\SchemaFactory;
 use PhpSolution\SwaggerUIGen\Component\Model\Operation;
 use PhpSolution\SwaggerUIGen\Component\Model\Response;
 use PhpSolution\SwaggerUIGen\Component\ModelHandler\GeneralFactory;
-use Symfony\Bundle\FrameworkBundle\Routing\Router;
+use Symfony\Component\Routing\RouterInterface;
 
 /**
- * Class GeneralBuilder
- *
- * @package PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Operation
+ * GeneralBuilder
  */
 class GeneralBuilder implements OperationBuilderInterface
 {
@@ -25,7 +23,7 @@ class GeneralBuilder implements OperationBuilderInterface
      */
     private $schemaModelFactory;
     /**
-     * @var Router
+     * @var RouterInterface
      */
     private $router;
     /**
@@ -34,14 +32,12 @@ class GeneralBuilder implements OperationBuilderInterface
     private $reader;
 
     /**
-     * GeneralBuilder constructor.
-     *
-     * @param GeneralFactory $generalFactory
-     * @param SchemaFactory  $schemaFactory
-     * @param Router         $router
-     * @param Reader         $reader
+     * @param GeneralFactory  $generalFactory
+     * @param SchemaFactory   $schemaFactory
+     * @param RouterInterface $router
+     * @param Reader          $reader
      */
-    public function __construct(GeneralFactory $generalFactory, SchemaFactory $schemaFactory, Router $router, Reader $reader)
+    public function __construct(GeneralFactory $generalFactory, SchemaFactory $schemaFactory, RouterInterface $router, Reader $reader)
     {
         $this->openapiObjectFactory = $generalFactory;
         $this->schemaModelFactory = $schemaFactory;

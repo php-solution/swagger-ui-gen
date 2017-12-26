@@ -2,6 +2,8 @@
 
 namespace PhpSolution\SwaggerUIGen\Bundle\DependencyInjection\Pass;
 
+use PhpSolution\SwaggerUIGen\Bundle\ModelHandler\PathItemFactory;
+use PhpSolution\SwaggerUIGen\Component\SwaggerProvider;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
@@ -26,19 +28,19 @@ class BuildersPass implements CompilerPassInterface
         );
         $this->addToRegistry(
             $container,
-            'swagger_uigen.model_factory.path_item',
+            PathItemFactory::class,
             'swagger_uigen.model_builder.operation',
             'addOperationBuilder'
         );
         $this->addToRegistry(
             $container,
-            'swagger_uigen.swagger_provider',
+            SwaggerProvider::class,
             'swagger_uigen.swagger_data_normalizer',
             'addDataNormalizer'
         );
         $this->addToRegistry(
             $container,
-            'swagger_uigen.swagger_provider',
+            SwaggerProvider::class,
             'swagger_uigen.model_builder.swagger',
             'addSwaggerBuilder'
         );
