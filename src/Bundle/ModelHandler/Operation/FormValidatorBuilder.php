@@ -20,6 +20,8 @@ use Symfony\Component\Validator\Constraints;
  */
 class FormValidatorBuilder
 {
+    use OperationBuilderTrait;
+
     /**
      * @var MetadataFactoryInterface
      */
@@ -53,32 +55,14 @@ class FormValidatorBuilder
     }
 
     /**
-     * @param FormInterface $form
-     *
-     * @return bool
-     */
-    public function isRequired(FormInterface $form): bool
-    {
-        $constraints = $this->getFormConstraints($form);
-
-        foreach ($constraints as $constraint) {
-            if (is_a($constraint, 'Symfony\Component\Validator\Constraints\NotBlank')) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * @return array
      */
     private function getConstraintBuilders(): array
     {
         return [
-            Constraints\NotBlank::class => function ($parameter) {
+            Constraints\NotBlank::class => function ($parameter, Constraints\NotBlank $constraint) {
                 /** @var $parameter Parameter|Schema */
-                $parameter->addDescription('Not blank');
+                $parameter->setRequired(true);
             },
             Constraints\Regex::class => function ($parameter, Constraints\Regex $constraint) {
                 /** @var $parameter Parameter|Schema */
@@ -186,6 +170,15 @@ class FormValidatorBuilder
                     }
                 } else {
                     $constraints = array_merge($constraints, $propertyMetadata->findConstraints($group));
+                }
+            }
+        }
+        // In case PATCH method all field are not mandatory
+        if ('PATCH' === $this->getFormBaseMethod($form)) {
+            foreach ($constraints as $key => $constraint) {
+                if ($constraint instanceof Constraints\NotBlank) {
+                    unset($constraints[$key]);
+                    break;
                 }
             }
         }

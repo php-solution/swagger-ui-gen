@@ -10,9 +10,11 @@ use PhpSolution\SwaggerUIGen\Component\Model\Schema;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 use Symfony\Component\Form\ChoiceList\View\ChoiceView;
+use Symfony\Component\Form\Extension\Core\Type;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormTypeInterface;
+use Symfony\Component\HttpFoundation\File\File;
 
 /**
  * Class FormTypeBuilder
@@ -21,6 +23,8 @@ use Symfony\Component\Form\FormTypeInterface;
  */
 class FormTypeBuilder implements OperationBuilderInterface
 {
+    use OperationBuilderTrait;
+
     private const CONSUMES = 'application/x-www-form-urlencoded';
     private const CONSUMES_MULTIPART = 'multipart/form-data';
     private const CONSUMES_JSON = 'application/json';
@@ -37,7 +41,7 @@ class FormTypeBuilder implements OperationBuilderInterface
     private $formFactory;
 
     /**
-     * @var Registry $doctrine
+     * @var RegistryInterface $doctrine
      */
     private $doctrine;
 
@@ -46,42 +50,37 @@ class FormTypeBuilder implements OperationBuilderInterface
      */
     private $typeFormMap = [
         ParameterGeneralInfo::TYPE_BOOLEAN => [
-            'Symfony\Component\Form\Extension\Core\Type\CheckboxType',
+            Type\CheckboxType::class,
         ],
         ParameterGeneralInfo::TYPE_INTEGER => [
-            'Symfony\Component\Form\Extension\Core\Type\IntegerType',
-            'Symfony\Bridge\Doctrine\Form\Type\EntityType',
+            Type\IntegerType::class,
+            EntityType::class,
         ],
         ParameterGeneralInfo::TYPE_NUMBER => [
-            'Symfony\Component\Form\Extension\Core\Type\NumberType'
+            Type\NumberType::class
         ],
         ParameterGeneralInfo::TYPE_FILE => [
-            'Symfony\Component\Form\Extension\Core\Type\FileType'
+            Type\FileType::class
         ],
         ParameterGeneralInfo::TYPE_ARRAY => [
-            'Symfony\Component\Form\Extension\Core\Type\ChoiceType',
+            Type\ChoiceType::class
         ],
     ];
     private $collectionTypes = [
-        'Symfony\Component\Form\Extension\Core\Type\CollectionType',
+        Type\CollectionType::class,
     ];
     /**
      * @var array
      */
     private $ignoredFormTypes = [
-        'Symfony\Component\Form\Extension\Core\Type\CollectionType',
-        'Symfony\Component\Form\Extension\Core\Type\ButtonType',
-        'Symfony\Component\Form\Extension\Core\Type\RepeatedType',
+        Type\CollectionType::class,
+        Type\ButtonType::class,
+        Type\RepeatedType::class,
     ];
     /**
      * @var FormValidatorBuilder
      */
     private $validatorBuilder;
-
-    /**
-     * @var string
-     */
-    private $formMethod;
 
     /**
      * @var bool
@@ -114,10 +113,10 @@ class FormTypeBuilder implements OperationBuilderInterface
 
         $config = $generalConfig['request'];
         $form = $this->formFactory->create($config['form_class'], null, $config['form_options'] ?? []);
-        $this->formMethod = $form->getConfig()->getMethod();
+        $formMethod = $this->getFormBaseMethod($form);
         $this->hasFileType = false;
 
-        if (array_key_exists('in', $config) && 'body' === $config['in'] && in_array($this->formMethod, ['POST', 'PUT', 'PATCH'])) {
+        if (array_key_exists('in', $config) && 'body' === $config['in'] && in_array($formMethod, ['POST', 'PUT', 'PATCH'])) {
             $operation->setConsumes([self::CONSUMES_JSON]);
             $operation->addParameter($this->buildObjectModel($form));
         } else {
@@ -174,10 +173,6 @@ class FormTypeBuilder implements OperationBuilderInterface
             $property->setDescription($config->getOption('label'));
             $this->validatorBuilder->buildFormParameter($property, $form);
             $schema->addProperty($this->getPropertyName($form), $property);
-
-            if ($this->validatorBuilder->isRequired($form)) {
-                $schema->addRequired($this->getPropertyName($form));
-            }
         } else {
             if ($this->isTypeCollection($config->getType()->getInnerType())) {
                 $property = new Schema('array');
@@ -233,7 +228,7 @@ class FormTypeBuilder implements OperationBuilderInterface
         $config = $form->getConfig();
         $options = $config->getOptions();
         if (!$this->isIgnoredFormType($form)) {
-            if ('Symfony\Component\HttpFoundation\File\File' === $config->getDataClass()) {
+            if (File::class === $config->getDataClass()) {
                 $this->hasFileType = true;
             }
 
@@ -248,13 +243,10 @@ class FormTypeBuilder implements OperationBuilderInterface
             $parameterInfo->setCollectionFormat(array_key_exists('multiple', $options) && $options['multiple'] ? 'multi' : null);
             $parameterInfo->setEnum($this->getParameterEnum($form));
 
-            $parameter = new Parameter($this->formMethod === 'GET' ? Parameter::IN_QUERY : Parameter::IN_FORM_DATA, $this->getParameterName($form));
+            $formMethod = $this->getFormBaseMethod($form);
+            $parameter = new Parameter($formMethod === 'GET' ? Parameter::IN_QUERY : Parameter::IN_FORM_DATA, $this->getParameterName($form));
             $parameter->setDescription($config->getOption('label'));
             $parameter->setGeneralInfo($parameterInfo);
-
-            if ($this->validatorBuilder->isRequired($form)) {
-                $parameter->setRequired(true);
-            }
 
             // Build via form type validator
             $this->validatorBuilder->buildFormParameter($parameter, $form);
