@@ -2,9 +2,11 @@
 
 namespace PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Operation;
 
+use PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Operation\FormTypeBuilder\Context;
 use PhpSolution\SwaggerUIGen\Component\Model\DataTypeFormat;
 use PhpSolution\SwaggerUIGen\Component\Model\Parameter;
 use PhpSolution\SwaggerUIGen\Component\Model\Schema;
+use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\GroupSequence;
@@ -20,8 +22,6 @@ use Symfony\Component\Validator\Constraints;
  */
 class FormValidatorBuilder
 {
-    use OperationBuilderTrait;
-
     /**
      * @var MetadataFactoryInterface
      */
@@ -38,13 +38,14 @@ class FormValidatorBuilder
     }
 
     /**
-     * @param mixed     $parameter
+     * @param mixed         $parameter
      * @param FormInterface $form
+     * @param Context       $context
      */
-    public function buildFormParameter($parameter, FormInterface $form): void
+    public function buildFormParameter($parameter, FormInterface $form, Context $context): void
     {
         $builders = $this->getConstraintBuilders();
-        foreach ($this->getFormConstraints($form) as $constraint) {
+        foreach ($this->getFormConstraints($form, $context) as $constraint) {
             $constraintClass = get_class($constraint);
             foreach ($builders as $builderConstraintClass => $builder) {
                 if ($constraintClass === $builderConstraintClass || is_subclass_of($constraint, $constraintClass)) {
@@ -139,17 +140,21 @@ class FormValidatorBuilder
 
     /**
      * @param FormInterface $form
+     * @param Context       $context
      *
      * @return array|Constraint[]
      */
-    private function getFormConstraints(FormInterface $form): array
+    private function getFormConstraints(FormInterface $form, Context $context): array
     {
-        $formConfig = $form->getConfig();
-        $constraints = $formConfig->getOption('constraints');
-        $groups = self::getValidationGroups($form);
         $parentForm = $form->getParent();
+        if ($parentForm && $parentForm->getConfig()->getType()->getInnerType() instanceof RepeatedType) {
+            $form = $parentForm;
+            $parentForm = $form->getParent();
+        }
+        $groups = self::getValidationGroups($form);
+        $constraints = $form->getConfig()->getOption('constraints', []);
 
-        if ($parentForm instanceof FormInterface && $form->getName() && $parentForm->getConfig()->getOption('data_class')) {
+        if ($parentForm && $form->getName() && $parentForm->getConfig()->getOption('data_class')) {
             $parentDataClass = $parentForm->getConfig()->getOption('data_class');
             /* @var $validationMetadata ClassMetadata */
             $validationMetadata = $this->classMetadataFactory->getMetadataFor($parentDataClass);
@@ -161,7 +166,6 @@ class FormValidatorBuilder
                 }
             }
 
-            $constraints = [];
             foreach ($groups as $group) {
                 if (is_array($propertyMetadata)) {
                     /* @var $propertyMetadata PropertyMetadataInterface[] */
@@ -174,7 +178,7 @@ class FormValidatorBuilder
             }
         }
         // In case PATCH method all field are not mandatory
-        if ('PATCH' === $this->getFormBaseMethod($form)) {
+        if ('PATCH' === $context->getHttpMethod()) {
             foreach ($constraints as $key => $constraint) {
                 if ($constraint instanceof Constraints\NotBlank) {
                     unset($constraints[$key]);

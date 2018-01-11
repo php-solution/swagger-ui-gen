@@ -2,90 +2,36 @@
 
 namespace PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Operation;
 
-use PhpSolution\SwaggerUIGen\Component\Model\Items;
+use PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Operation\FormTypeBuilder\BodyBuilder;
+use PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Operation\FormTypeBuilder\Context;
+use PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Operation\FormTypeBuilder\FormBuilder;
 use PhpSolution\SwaggerUIGen\Component\Model\Operation;
-use PhpSolution\SwaggerUIGen\Component\Model\Parameter;
-use PhpSolution\SwaggerUIGen\Component\Model\ParameterGeneralInfo;
-use PhpSolution\SwaggerUIGen\Component\Model\Schema;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Bridge\Doctrine\RegistryInterface;
-use Symfony\Component\Form\ChoiceList\View\ChoiceView;
-use Symfony\Component\Form\Extension\Core\Type;
 use Symfony\Component\Form\FormFactoryInterface;
-use Symfony\Component\Form\FormInterface;
-use Symfony\Component\Form\FormTypeInterface;
-use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\RouterInterface;
 
 /**
- * Class FormTypeBuilder
- *
- * @package PhpSolution\SwaggerUIGen\Bundle\ModelHandler\OperationBuilder
+ * FormTypeBuilder
  */
 class FormTypeBuilder implements OperationBuilderInterface
 {
-    use OperationBuilderTrait;
-
-    private const CONSUMES = 'application/x-www-form-urlencoded';
-    private const CONSUMES_MULTIPART = 'multipart/form-data';
-    private const CONSUMES_JSON = 'application/json';
-    private const INTL_DATE_TRANSFORM = [
-        \IntlDateFormatter::NONE => '',
-        \IntlDateFormatter::FULL => "EEEE, MMMM d, y 'at' h:mm:ss a zzzz",
-        \IntlDateFormatter::LONG => "MMMM d, y 'at' h:mm:ss a z",
-        \IntlDateFormatter::SHORT => 'M/d/yy, h:mm a',
-        \IntlDateFormatter::MEDIUM => 'MMM d, y, h:mm:ss a',
-    ];
     /**
      * @var FormFactoryInterface
      */
     private $formFactory;
-
     /**
      * @var RegistryInterface $doctrine
      */
     private $doctrine;
-
-    /**
-     * @var array
-     */
-    private $typeFormMap = [
-        ParameterGeneralInfo::TYPE_BOOLEAN => [
-            Type\CheckboxType::class,
-        ],
-        ParameterGeneralInfo::TYPE_INTEGER => [
-            Type\IntegerType::class,
-            EntityType::class,
-        ],
-        ParameterGeneralInfo::TYPE_NUMBER => [
-            Type\NumberType::class
-        ],
-        ParameterGeneralInfo::TYPE_FILE => [
-            Type\FileType::class
-        ],
-        ParameterGeneralInfo::TYPE_ARRAY => [
-            Type\ChoiceType::class
-        ],
-    ];
-    private $collectionTypes = [
-        Type\CollectionType::class,
-    ];
-    /**
-     * @var array
-     */
-    private $ignoredFormTypes = [
-        Type\CollectionType::class,
-        Type\ButtonType::class,
-        Type\RepeatedType::class,
-    ];
     /**
      * @var FormValidatorBuilder
      */
     private $validatorBuilder;
-
     /**
-     * @var bool
+     * @var RouterInterface
      */
-    private $hasFileType = false;
+    private $router;
 
     /**
      * FormTypeBuilder constructor.
@@ -93,12 +39,15 @@ class FormTypeBuilder implements OperationBuilderInterface
      * @param FormFactoryInterface $formFactory
      * @param FormValidatorBuilder $validatorBuilder
      * @param RegistryInterface    $doctrine
+     * @param RouterInterface      $router
      */
-    public function __construct(FormFactoryInterface $formFactory, FormValidatorBuilder $validatorBuilder, RegistryInterface $doctrine)
+    public function __construct(FormFactoryInterface $formFactory, FormValidatorBuilder $validatorBuilder,
+                                RegistryInterface $doctrine, RouterInterface $router)
     {
         $this->formFactory = $formFactory;
         $this->validatorBuilder = $validatorBuilder;
         $this->doctrine = $doctrine;
+        $this->router = $router;
     }
 
     /**
@@ -113,342 +62,14 @@ class FormTypeBuilder implements OperationBuilderInterface
 
         $config = $generalConfig['request'];
         $form = $this->formFactory->create($config['form_class'], null, $config['form_options'] ?? []);
-        $formMethod = $this->getFormBaseMethod($form);
-        $this->hasFileType = false;
 
-        if (array_key_exists('in', $config) && 'body' === $config['in'] && in_array($formMethod, ['POST', 'PUT', 'PATCH'])) {
-            $operation->setConsumes([self::CONSUMES_JSON]);
-            $operation->addParameter($this->buildObjectModel($form));
-        } else {
-            foreach ($this->buildParameterModelList($form, new \ArrayObject()) as $parameterModel) {
-                $operation->addParameter($parameterModel);
-            }
+        $methods = $this->router->getRouteCollection()->get($generalConfig['route'])->getMethods();
+        $context = new Context($form, $methods);
 
-            if ($this->hasFileType) {
-                $operation->setConsumes([self::CONSUMES_MULTIPART]);
-            } else {
-                $operation->setConsumes([self::CONSUMES]);
-            }
-        }
-    }
-
-    /**
-     * @param FormInterface $form
-     * @param bool          $isCollection
-     *
-     * @return Parameter
-     */
-    private function buildObjectModel(FormInterface $form, bool $isCollection = false): Parameter
-    {
-        $config = $form->getConfig();
-
-        $parameter = new Parameter(Parameter::IN_BODY, $this->getParameterName($form));
-        $parameter->setDescription($config->getOption('label'));
-        $parameter->setName(Parameter::IN_BODY);
-        $parameter->setRequired(true);
-
-        $schema = new Schema('object');
-        $parameter->setSchema($schema);
-
-        /* @var $childForm FormInterface */
-        foreach ($form as $childForm) {
-            $this->buildPropertyList($childForm, $schema, $isCollection);
-        }
-
-        return $parameter;
-    }
-
-    /**
-     * @param FormInterface $form
-     * @param Schema        $schema
-     * @param bool          $isCollection
-     */
-    private function buildPropertyList(FormInterface $form, Schema $schema, bool $isCollection = false)
-    {
-        $config = $form->getConfig();
-
-        if (!$this->isIgnoredFormType($form)) {
-            $property = new Schema($this->getParameterType($form));
-            $property->setFormat($this->getParameterFormat($form));
-            $property->setDescription($config->getOption('label'));
-            $this->validatorBuilder->buildFormParameter($property, $form);
-            $schema->addProperty($this->getPropertyName($form), $property);
-        } else {
-            if ($this->isTypeCollection($config->getType()->getInnerType())) {
-                $property = new Schema('array');
-                $property->setItems($this->buildItemList($form));
-                $schema->addProperty($this->getPropertyName($form), $property);
-            } else {
-                if ('__name__' !== $this->getPropertyName($form)) {
-                    $property = new Schema('object');
-                    $schema->addProperty($this->getPropertyName($form), $property);
-                }
-            }
-
-            if (isset($property)) {
-                $schema = $property;
-            }
-        }
-
-        /* @var $childForm FormInterface */
-        foreach ($form as $childForm) {
-            $this->buildPropertyList($childForm, $schema, $isCollection);
-        }
-    }
-
-    /**
-     * @param FormInterface $form
-     *
-     * @return Schema
-     */
-    private function buildItemList(FormInterface $form): Schema
-    {
-        $config = $form->getConfig();
-
-        $schema = new Schema('object');
-
-        $prototype = $config->getAttribute('prototype', null);
-        if ($prototype instanceof FormInterface) {
-            $prototype->setParent($form);
-            $this->buildPropertyList($prototype, $schema, true);
-        }
-
-        return $schema;
-    }
-
-    /**
-     * @param FormInterface $form
-     * @param \ArrayObject  $parameterList
-     * @param bool          $isCollection
-     *
-     * @return \ArrayObject
-     */
-    private function buildParameterModelList(FormInterface $form, \ArrayObject $parameterList, bool $isCollection = false): \ArrayObject
-    {
-        $config = $form->getConfig();
-        $options = $config->getOptions();
-        if (!$this->isIgnoredFormType($form)) {
-            if (File::class === $config->getDataClass()) {
-                $this->hasFileType = true;
-            }
-
-            $parameterInfo = new ParameterGeneralInfo();
-            $parameterInfo->setType($this->getParameterType($form));
-
-            // array data type can not have format field. see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#dataTypeFormat
-            if ('array' != $this->getParameterType($form)) {
-                $parameterInfo->setFormat($this->getParameterFormat($form));
-            }
-
-            $parameterInfo->setCollectionFormat(array_key_exists('multiple', $options) && $options['multiple'] ? 'multi' : null);
-            $parameterInfo->setEnum($this->getParameterEnum($form));
-
-            $formMethod = $this->getFormBaseMethod($form);
-            $parameter = new Parameter($formMethod === 'GET' ? Parameter::IN_QUERY : Parameter::IN_FORM_DATA, $this->getParameterName($form));
-            $parameter->setDescription($config->getOption('label'));
-            $parameter->setGeneralInfo($parameterInfo);
-
-            // Build via form type validator
-            $this->validatorBuilder->buildFormParameter($parameter, $form);
-
-            /**
-             * items is Required if type is "array"
-             * https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#fixed-fields-7
-             */
-            if ($isCollection || 'array' === $this->getParameterType($form)) {
-                $items = new Items($parameterInfo->getType());
-                if ($parameterInfo->getEnum()) {
-                    $subItems = new Items($parameterInfo->getType());
-                    $subItems->setEnum($parameterInfo->getEnum());
-
-                    if ($isCollection) {
-                        $items->setType('array');
-                        $items->setItems($subItems);
-                    } else {
-                        $enum = $parameterInfo->getEnum();
-                        $subItems->setType(gettype(array_pop($enum)));
-                        $items = $subItems;
-                    }
-
-                    $parameterInfo->setEnum(null);
-                }
-                $parameterInfo->setItems($items);
-                $parameterInfo->setType('array');
-            } elseif ($parameterInfo->getCollectionFormat() === 'multi' && $parameterInfo->getEnum()) {
-                // Build select choices
-                $items = new Items($parameterInfo->getType());
-                $items->setEnum($parameterInfo->getEnum());
-                $parameterInfo->setItems($items);
-                $parameterInfo->setType('array');
-                $parameterInfo->setEnum(null);
-            }
-
-            $parameterList->append($parameter);
-        }
-
-        // Handle Collection
-        if ($this->isTypeCollection($config->getType()->getInnerType())) {
-            $prototype = $config->hasAttribute('prototype') ? $config->getAttribute('prototype') : null;
-            if ($prototype instanceof FormInterface) {
-                $prototype->setParent($form);
-                $this->buildParameterModelList($prototype, $parameterList, true);
-            }
-        }
-
-        /* @var $childForm FormInterface */
-        foreach ($form as $childForm) {
-            $this->buildParameterModelList($childForm, $parameterList, $isCollection);
-        }
-
-        return $parameterList;
-    }
-
-    /**
-     * @param FormTypeInterface $form
-     *
-     * @return bool
-     */
-    private function isTypeCollection(FormTypeInterface $form): bool
-    {
-        foreach ($this->collectionTypes as $type) {
-            if (is_subclass_of($form, $type) || $form instanceof $type) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * @param FormInterface $form
-     *
-     * @return bool
-     */
-    private function isIgnoredFormType(FormInterface $form): bool
-    {
-        if ($form->count() > 0) {
-            return true;
-        }
-        $formType = $form->getConfig()->getType();
-        $formClass = get_class($formType->getInnerType());
-        $parentFormClass = get_class($formType->getParent()->getInnerType());
-
-        foreach ($this->ignoredFormTypes as $ignoredFormType) {
-            if (
-                $formClass === $ignoredFormType
-                || $parentFormClass === $ignoredFormType
-                || is_subclass_of($formClass, $ignoredFormType)
-                || is_subclass_of($parentFormClass, $ignoredFormType)
-            ) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * @param FormInterface $form
-     *
-     * @return null|string
-     */
-    private function getParameterFormat(FormInterface $form):? string
-    {
-        $option = $form->getConfig()->getOptions();
-        $optionFormat = $option['format'] ?? null;
-        if (is_int($optionFormat)) {
-            $optionFormat = self::INTL_DATE_TRANSFORM[$optionFormat] ?? '';
-        }
-
-        if ($form->getParent() && $form->getParent()->getConfig()->getOption('data_class')) {
-            $metadata = $this->doctrine->getManager()->getClassMetadata($form->getParent()->getConfig()->getOption('data_class'));
-
-            $name = $this->getPropertyName($form);
-            if ($metadata->hasField($name)) {
-                $fieldMetadata = $metadata->getFieldMapping($name);
-
-                if ('string' !== $fieldMetadata['type']) {
-                    switch ($fieldMetadata['type']) {
-                        case 'integer':
-                            $optionFormat = 'int64';
-                            break;
-                        case 'float':
-                            $optionFormat = 'float';
-                            break;
-                    }
-                }
-            }
-        }
-
-        return $optionFormat;
-    }
-
-    /**
-     * @param FormInterface $form
-     *
-     * @return string
-     */
-    private function getParameterType(FormInterface $form): string
-    {
-        $formType = $form->getConfig()->getType();
-        $formClass = get_class($formType->getInnerType());
-        $parentFormClass = get_class($formType->getParent()->getInnerType());
-
-        foreach ($this->typeFormMap as $parameterType => $mapFormClasses) {
-            foreach ($mapFormClasses as $mapFormClass) {
-                if (is_subclass_of($formClass, $mapFormClass)
-                    || is_subclass_of($parentFormClass, $mapFormClass)
-                    || $formClass === $mapFormClass
-                    || $parentFormClass === $mapFormClass
-                ) {
-                    return $parameterType;
-                }
-            }
-        }
-
-        return ParameterGeneralInfo::TYPE_STRING;
-    }
-
-    /**
-     * @param FormInterface $form
-     *
-     * @return string
-     */
-    private function getParameterName(FormInterface $form): string
-    {
-        return str_replace('__name__', '', $form->createView()->vars['full_name']);
-    }
-
-    /**
-     * @param FormInterface $form
-     *
-     * @return string
-     */
-    private function getPropertyName(FormInterface $form): string
-    {
-        return $form->createView()->vars['name'];
-    }
-
-    /**
-     * @param FormInterface $form
-     *
-     * @return array
-     */
-    private function getParameterEnum(FormInterface $form):? array
-    {
-        if ($form->getConfig()->getType()->getInnerType() instanceof EntityType) {
-            return null;
-        }
-        $formView = $form->createView();
-        if (!isset($formView->vars['choices'])) {
-            return null;
-        }
-        $result = [];
-        /* @var ChoiceView $choiceView */
-        foreach ($formView->vars['choices'] as $choiceView) {
-            $result[] = $choiceView->value;
-        }
-
-        return $result;
+        array_key_exists('in', $config) &&
+        'body' === $config['in'] &&
+        Request::METHOD_GET !== $context->getHttpMethod()
+            ? (new BodyBuilder($operation, $context, $this->validatorBuilder, $this->doctrine))->build()
+            : (new FormBuilder($operation, $context, $this->validatorBuilder, $this->doctrine))->build();
     }
 }
