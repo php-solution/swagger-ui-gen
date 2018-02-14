@@ -69,6 +69,9 @@ class PhpDocSchemaBuilder implements SchemaBuilderInterface
             $propertySchema->setDescription($propertyApiDoc['description'] ?? '');
             $propertySchema->setPattern($propertyApiDoc['pattern'] ?? null);
             $propertySchema->setFormat($propertyApiDoc['format'] ?? null);
+            if (isset($propertyApiDoc['example'])) {
+                $propertySchema->setExample($propertyApiDoc['example']);
+            }
             if (array_key_exists('enum', $propertyApiDoc) && is_array($propertyApiDoc['enum'])) {
                 $propertySchema->setEnum($propertyApiDoc['enum']);
             }
@@ -76,7 +79,7 @@ class PhpDocSchemaBuilder implements SchemaBuilderInterface
                 $this->buildSchemaByApiDoc($propertySchema, $propertyApiDoc['children']);
             }
             if ($propertySchema->getType() === 'array') {
-                $propertySchema->setItems(new Schema('integer'));
+                $propertySchema->setItems(new Schema($propertyApiDoc['items'] ?? 'integer'));
             }
             if ($propertyApiDoc['required']) {
                 $schema->addRequired($propertyName);
