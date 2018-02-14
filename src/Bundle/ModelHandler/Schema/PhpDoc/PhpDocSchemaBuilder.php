@@ -4,6 +4,7 @@ namespace PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Schema\PhpDoc;
 
 use PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Schema\ConfigRegistry;
 use PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Schema\SchemaBuilderInterface;
+use PhpSolution\SwaggerUIGen\Component\Model\Reference;
 use PhpSolution\SwaggerUIGen\Component\Model\Schema;
 
 /**
@@ -69,6 +70,8 @@ class PhpDocSchemaBuilder implements SchemaBuilderInterface
             $propertySchema->setDescription($propertyApiDoc['description'] ?? '');
             $propertySchema->setPattern($propertyApiDoc['pattern'] ?? null);
             $propertySchema->setFormat($propertyApiDoc['format'] ?? null);
+            $propertySchema->setRef($propertyApiDoc['$ref'] ?? null);
+
             if (isset($propertyApiDoc['example'])) {
                 $propertySchema->setExample($propertyApiDoc['example']);
             }
@@ -79,7 +82,11 @@ class PhpDocSchemaBuilder implements SchemaBuilderInterface
                 $this->buildSchemaByApiDoc($propertySchema, $propertyApiDoc['children']);
             }
             if ($propertySchema->getType() === 'array') {
-                $propertySchema->setItems(new Schema($propertyApiDoc['items'] ?? 'integer'));
+                $s = new Schema($propertyApiDoc['items']['type'] ?? 'integer');
+                if (isset($propertyApiDoc['items']['$ref'])) {
+                    $s->setRef($propertyApiDoc['items']['$ref']);
+                }
+                $propertySchema->setItems($s);
             }
             if ($propertyApiDoc['required']) {
                 $schema->addRequired($propertyName);

@@ -92,11 +92,11 @@ class PhpDocParser implements PhpDocParserInterface
             'class'       => null,
             'format'      => null,
             'children'    => null,
-            'example'     => $annotation['example'] ?? null
+            'example'     => $annotation['example'] ?? null,
         ];
 
         if (isset($annotation['items'])) {
-            $dataType['items'] = $annotation['items'];
+            $dataType['items']['type'] = $annotation['items'];
         }
 
         if (array_key_exists($type, self::TYPE_TRANSFORMER)) {
@@ -105,16 +105,21 @@ class PhpDocParser implements PhpDocParserInterface
         }
 
         if (!$isPrimitive && class_exists(str_replace('[]', '', $type))) {
-            $exp = explode("\\", $type);
-            $dataType = array_merge(
-                $dataType,
-                [
-                    'pattern' => sprintf("object (%s)", end($exp)),
-                    'class'   => str_replace('[]', '', $type),
-                    'inline'  => false,
-                    'type'    => strpos($type, '[]') === false ? 'object' : 'collection',
-                ]
-            );
+            $isArray = strpos($type, '[]') !== false;
+            $className = str_replace('[]', '', $type);
+            $exp = explode("\\", $className);
+            $ref = '#/definitions/' . array_pop($exp);
+            if ($isArray) {
+                $dataType = array_merge($dataType, [
+                    'type'  => strpos($type, '[]') === false ? 'object' : 'array',
+                    'items' => ['type' => 'object', '$ref' => $ref],
+                ]);
+            } else {
+                $dataType = array_merge($dataType, [
+                    'type' => 'object',
+                    '$ref' => $ref
+                ]);
+            }
         }
 
         return $dataType;
