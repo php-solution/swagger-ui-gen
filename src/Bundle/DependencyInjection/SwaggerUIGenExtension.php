@@ -35,6 +35,7 @@ class SwaggerUIGenExtension extends Extension
             $loader->load('services_test.yml');
         }
 
+        $loader->load('command.yml');
 
         $this->registerOptionsProvider($config, $container);
         $this->registerHandlers($config, $container);

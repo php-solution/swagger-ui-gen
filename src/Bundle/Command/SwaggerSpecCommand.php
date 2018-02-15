@@ -4,7 +4,7 @@ namespace PhpSolution\SwaggerUIGen\Bundle\Command;
 
 use PhpSolution\SwaggerUIGen\Component\DataProvider\DataProviderInterface;
 use PhpSolution\SwaggerUIGen\Component\SwaggerProvider;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -12,28 +12,30 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * SwaggerSpecCommand
  */
-class SwaggerSpecCommand extends ContainerAwareCommand
+class SwaggerSpecCommand extends Command
 {
     /**
      * @var DataProviderInterface
      */
-    private $configProvider;
+    private $dataProvider;
+
     /**
      * @var SwaggerProvider
      */
     private $swaggerProvider;
 
     /**
-     * @param string                $name
-     * @param DataProviderInterface $configProvider
-     * @param SwaggerProvider       $swaggerProvider
+     * @param DataProviderInterface $dataProvider
+     * @param SwaggerProvider $swaggerProvider
      */
-    public function __construct(string $name = null, DataProviderInterface $configProvider, SwaggerProvider $swaggerProvider)
+    public function __construct(DataProviderInterface $dataProvider, SwaggerProvider $swaggerProvider)
     {
-        parent::__construct($name);
-        $this->configProvider = $configProvider;
+        parent::__construct('swagger-gen:generate-spec');
+
+        $this->dataProvider = $dataProvider;
         $this->swaggerProvider = $swaggerProvider;
     }
+
 
     /**
      * Configure command
@@ -56,7 +58,7 @@ class SwaggerSpecCommand extends ContainerAwareCommand
      */
     public function execute(InputInterface $input, OutputInterface $output): void
     {
-        $swaggerSpec = $this->swaggerProvider->getSwaggerData($this->configProvider);
+        $swaggerSpec = $this->swaggerProvider->getSwaggerData($this->dataProvider);
         $jsonData = json_encode($swaggerSpec, $input->getOption('json_encode_options'));
 
         file_put_contents($input->getOption('path'), $jsonData);

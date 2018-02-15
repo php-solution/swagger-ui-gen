@@ -51,7 +51,7 @@ class GeneralBuilder implements OperationBuilderInterface
      */
     public function build(Operation $operation, array $config): void
     {
-        foreach (['schemes', 'tags', 'description', 'externalDocs'] as $fieldName) {
+        foreach (['summary','schemes', 'tags', 'description', 'externalDocs'] as $fieldName) {
             if (array_key_exists($fieldName, $config) && $config[$fieldName]) {
                 $operation->{'set' . ucfirst($fieldName)}($config[$fieldName]);
             }

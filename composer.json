@@ -11,22 +11,22 @@
     ],
     "require": {
         "php": "~7.1",
-        "symfony/config": ">=3.0",
-        "symfony/console": ">=3.0",
-        "symfony/doctrine-bridge": ">=3.0",
-        "symfony/dependency-injection": ">=3.0",
-        "symfony/finder": ">=3.0",
-        "symfony/framework-bundle": ">=3.0",
-        "symfony/http-foundation": ">=3.0",
-        "symfony/routing": ">=3.0",
-        "symfony/yaml": ">=3.0",
-        "justinrainbow/json-schema": "dev-master"
+        "symfony/config": ">=3.4",
+        "symfony/console": ">=3.4",
+        "symfony/doctrine-bridge": ">=3.4",
+        "symfony/dependency-injection": ">=3.4",
+        "symfony/finder": ">=3.4",
+        "symfony/framework-bundle": ">=3.4",
+        "symfony/http-foundation": ">=3.4",
+        "symfony/routing": ">=3.4",
+        "symfony/yaml": ">=3.4",
+        "justinrainbow/json-schema": "dev-master#9225c967a5395e4643b5124806191c038fb1224b"
     },
     "require-dev": {
         "phpunit/phpunit" : "~6.0",
-        "symfony/form": ">=3.0",
-        "symfony/validator": ">=3.0",
-        "symfony/var-dumper": ">=3.0"
+        "symfony/form": ">=3.4",
+        "symfony/validator": ">=3.4",
+        "symfony/var-dumper": ">=3.4"
     },
     "suggest": {
         "doctrine/orm": "For using Doctrine ORM OpenApi Schema Handler",

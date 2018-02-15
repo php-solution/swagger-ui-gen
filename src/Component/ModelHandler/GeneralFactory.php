@@ -295,7 +295,6 @@ class GeneralFactory
         $header = new Header();
         $this->createItemsObject($data, $header);
         $header->setDescription($data['description'] ?? null);
-
         return $header;
     }
 }

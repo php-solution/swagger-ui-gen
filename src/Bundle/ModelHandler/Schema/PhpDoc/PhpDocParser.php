@@ -11,10 +11,10 @@ class PhpDocParser implements PhpDocParserInterface
     private const PRIMITIVE_TYPES = ['DateTime'];
     private const TYPE_TRANSFORMER = [
         'datetime' => 'string',
-        'bool' => 'boolean',
-        'float' => 'number',
+        'bool'     => 'boolean',
+        'float'    => 'number',
         'dateTime' => 'string',
-        'date' => 'string',
+        'date'     => 'string',
     ];
     /**
      * @var SimpleAnnotationParser
@@ -81,18 +81,23 @@ class PhpDocParser implements PhpDocParserInterface
         $type = $annotation['type'] ?? self::DEFAULT_TYPE;
         $isPrimitive = $this->isPrimitive($type);
         $dataType = [
-            'name' => $field,
-            'required' => $annotation['required'] ?? false,
+            'name'        => $field,
+            'required'    => $annotation['required'] ?? false,
             'description' => $annotation['description'] ?? null,
-            'primitive' => $isPrimitive,
-            'type' => $type,
-            'inline' => $annotation['inline'] ?? false,
-            'enum' => array_key_exists('enum', $annotation) ? json_decode($annotation['enum']) : null,
-            'pattern' => null,
-            'class' => null,
-            'format' => null,
-            'children' => null,
+            'primitive'   => $isPrimitive,
+            'type'        => $type,
+            'inline'      => $annotation['inline'] ?? false,
+            'enum'        => array_key_exists('enum', $annotation) ? json_decode($annotation['enum']) : null,
+            'pattern'     => null,
+            'class'       => null,
+            'format'      => null,
+            'children'    => null,
+            'example'     => $annotation['example'] ?? null
         ];
+
+        if (isset($annotation['items'])) {
+            $dataType['items'] = $annotation['items'];
+        }
 
         if (array_key_exists($type, self::TYPE_TRANSFORMER)) {
             $dataType['type'] = self::TYPE_TRANSFORMER[$type];
@@ -105,9 +110,9 @@ class PhpDocParser implements PhpDocParserInterface
                 $dataType,
                 [
                     'pattern' => sprintf("object (%s)", end($exp)),
-                    'class' => str_replace('[]', '', $type),
-                    'inline' => false,
-                    'type' => strpos($type, '[]') === false ? 'object' : 'collection'
+                    'class'   => str_replace('[]', '', $type),
+                    'inline'  => false,
+                    'type'    => strpos($type, '[]') === false ? 'object' : 'collection',
                 ]
             );
         }
