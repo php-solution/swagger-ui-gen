@@ -42,7 +42,8 @@ services:
             - {name: 'swagger_uigen.model_builder.operation'}
 
     PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Operation\ClassBuilder:
-        tags: [{name: 'swagger_uigen.model_builder.operation'}]
+        tags:
+            - {name: 'swagger_uigen.model_builder.operation'}
 
     PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Schema\SerializerBuilder:
         tags:
