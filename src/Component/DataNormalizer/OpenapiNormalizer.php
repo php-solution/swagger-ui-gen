@@ -30,21 +30,6 @@ class OpenapiNormalizer implements DataNormalizerInterface
     ];
 
     /**
-     * @var SwaggerValidator
-     */
-    private $configValidator;
-
-    /**
-     * OpenapiNormalizer constructor.
-     *
-     * @param SwaggerValidator $validator
-     */
-    public function __construct(SwaggerValidator $validator)
-    {
-        $this->configValidator = $validator;
-    }
-
-    /**
      * @param array $config
      *
      * @return array
@@ -61,12 +46,6 @@ class OpenapiNormalizer implements DataNormalizerInterface
             ARRAY_FILTER_USE_BOTH
         );
 
-        if (count($validationErrors = $this->configValidator->validate($normalizeConfig)) > 0) {
-            throw new NormalizationException(
-                sprintf("JSON Schema does not validate. Violations:\n%s", implode("\n", $validationErrors))
-            );
-        } else {
-            return $normalizeConfig;
-        }
+        return $normalizeConfig;
     }
 }

@@ -6,7 +6,6 @@ use PhpSolution\SwaggerUIGen\Component\DataNormalizer\DataNormalizerInterface;
 use PhpSolution\SwaggerUIGen\Component\DataNormalizer\OpenapiNormalizer;
 use PhpSolution\SwaggerUIGen\Component\DataProvider\DataProviderInterface;
 use PhpSolution\SwaggerUIGen\Component\ModelHandler\SwaggerBuilderInterface;
-use PhpSolution\SwaggerUIGen\Component\SchemaValidator\SwaggerValidator;
 use PhpSolution\SwaggerUIGen\Component\Model\Swagger;
 
 /**
@@ -60,7 +59,7 @@ class SwaggerProvider
         $config = array_merge_recursive($inputConfigs, $this->modelExtractor->extract($swaggerModel));
 
         if (!$this->openapiNormalizer) {
-            $this->openapiNormalizer = new OpenapiNormalizer(new SwaggerValidator());
+            $this->openapiNormalizer = new OpenapiNormalizer();
         }
 
         return $this->openapiNormalizer->normalize($config);
