@@ -36,7 +36,6 @@ class SwaggerSpecCommand extends Command
         $this->swaggerProvider = $swaggerProvider;
     }
 
-
     /**
      * Configure command
      */

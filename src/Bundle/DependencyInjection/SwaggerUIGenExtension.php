@@ -14,9 +14,7 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 /**
- * Class SwaggerUIGenExtension
- *
- * @package PhpSolution\SwaggerUIGen\DependencyInjection
+ * SwaggerUIGenExtension
  */
 class SwaggerUIGenExtension extends Extension
 {
@@ -34,8 +32,6 @@ class SwaggerUIGenExtension extends Extension
         if ('test' === $container->getParameter('kernel.environment')) {
             $loader->load('services_test.yml');
         }
-
-        $loader->load('command.yml');
 
         $this->registerOptionsProvider($config, $container);
         $this->registerHandlers($config, $container);
