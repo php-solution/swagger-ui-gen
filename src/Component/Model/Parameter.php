@@ -35,6 +35,11 @@ class Parameter
     private $generalInfo;
 
     /**
+     * @var mixed
+     */
+    private $example;
+
+    /**
      * Parameter constructor.
      *
      * @param string|null $in
@@ -92,5 +97,25 @@ class Parameter
     public function setGeneralInfo(?ParameterGeneralInfo $generalInfo): void
     {
         $this->generalInfo = $generalInfo;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getExample()
+    {
+        return $this->example;
+    }
+
+    /**
+     * @param mixed $example
+     *
+     * @return self
+     */
+    public function setExample($example)
+    {
+        $this->example = $example;
+
+        return $this;
     }
 }
