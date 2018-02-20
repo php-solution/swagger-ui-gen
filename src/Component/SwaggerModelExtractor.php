@@ -90,6 +90,7 @@ class SwaggerModelExtractor
                             'name' => $parameter->getName(),
                             'description' => $parameter->getDescription(),
                             'required' => $parameter->isRequired(),
+                            'example' => $parameter->getExample()
                         ];
                         if (($generalInfo = $parameter->getGeneralInfo()) instanceof Model\ParameterGeneralInfo) {
                             $result = array_merge($result, $extractor->extract($generalInfo));

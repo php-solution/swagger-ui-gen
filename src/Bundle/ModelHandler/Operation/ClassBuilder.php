@@ -103,13 +103,20 @@ class ClassBuilder implements OperationBuilderInterface
      *
      * @return Parameter
      */
-    private function buildBodyParameter(string $name, array $apiData): Parameter
+    private function buildQueryParameter(string $name, array $apiData): Parameter
     {
         $info = new ParameterGeneralInfo();
+        $info->setType($apiData['type']);
+        $info->setCollectionFormat($apiData['collectionFormat'] ?? null);
+        if (array_key_exists('items', $apiData)) {
+            $info->setItems(new Items($apiData['items']));
+        }
+
         $parameter = new Parameter(Parameter::IN_QUERY);
         $parameter->setName($name);
         $parameter->setRequired($apiData['required'] ?? false);
         $parameter->setDescription($apiData['description'] ?? '');
+        $parameter->setExample($apiData['example'] ?? '');
         $parameter->setGeneralInfo($info);
 
         return $parameter;
@@ -118,7 +125,7 @@ class ClassBuilder implements OperationBuilderInterface
     /**
      * @param array $apiData
      *
-     * @return Parameter
+     * @return Schema
      */
     private function buildBodyProperty(array $apiData): Schema
     {
