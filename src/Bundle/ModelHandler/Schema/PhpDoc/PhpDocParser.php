@@ -44,16 +44,19 @@ class PhpDocParser implements PhpDocParserInterface
     {
         $result = [];
         $refClass = new \ReflectionClass($className);
-        foreach ($refClass->getProperties() as $refProp) {
-            $propName = $refProp->getName();
-            $propertyNameNormalized = strtolower(preg_replace('/[A-Z]/', '_\\0', $propName));
-            $annotations = $this->getAnnotationParser()->getAnnotations($refProp->getDocComment());
+
+        $items = array_merge($refClass->getProperties(), $refClass->getMethods());
+
+        /* @var \ReflectionProperty|\ReflectionMethod $item */
+        foreach ($items as $item) {
+            $annotations = $this->getAnnotationParser()->getAnnotations($item->getDocComment());
 
             if (!array_key_exists($this->annotationName, $annotations)) {
                 continue;
             }
+            $field = $this->normalizeField($item->getName(), $item instanceof \ReflectionMethod);
 
-            $dataType = $this->buildDataType($annotations[$this->annotationName], $propName);
+            $dataType = $this->buildDataType($annotations[$this->annotationName], $field);
             if (false === $dataType['primitive'] && isset($dataType['class'])) {
                 $visited[] = $dataType['class'];
                 $children = $this->parse($dataType['class']);
@@ -64,10 +67,26 @@ class PhpDocParser implements PhpDocParserInterface
                 }
             }
 
-            $result[$propertyNameNormalized] = $dataType;
+            $result[$field] = $dataType;
         }
 
         return $result;
+    }
+
+    /**
+     * @param string $field
+     * @param bool   $isMethod
+     *
+     * @return string
+     */
+    private function normalizeField(string $field, bool $isMethod)
+    {
+        if ($isMethod) {
+            $field = preg_replace('/^(get|is)/', '', $field);
+            $field = lcfirst($field);
+        }
+
+        return strtolower(preg_replace('/[A-Z]/', '_\\0', $field));
     }
 
     /**
