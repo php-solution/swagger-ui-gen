@@ -3,6 +3,7 @@
 namespace PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Operation;
 
 use Doctrine\Bundle\DoctrineBundle\Registry;
+use PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Operation\AnnotationBuilder\ParametersBuilder;
 use PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Schema\PhpDoc\SimpleAnnotationParser;
 use PhpSolution\SwaggerUIGen\Component\Model\Items;
 use PhpSolution\SwaggerUIGen\Component\Model\Operation;
@@ -16,9 +17,9 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormTypeInterface;
 
 /**
- * Class FormTypeBuilder
+ * Class AnnotationBuilder
  */
-class ClassBuilder implements OperationBuilderInterface
+class AnnotationBuilder implements OperationBuilderInterface
 {
     private const CONSUMES_JSON = 'application/json';
 
@@ -60,7 +61,6 @@ class ClassBuilder implements OperationBuilderInterface
             return;
         }
         $className = $generalConfig['request']['class'];
-        $refClass = new \ReflectionClass($className);
         $type = $generalConfig['request']['in'] ?? Parameter::IN_BODY;
 
         if ($type == Parameter::IN_BODY) {
@@ -73,6 +73,7 @@ class ClassBuilder implements OperationBuilderInterface
             $parameter->setSchema($schema);
             $operation->addParameter($parameter);
 
+            $refClass = new \ReflectionClass($className);
             foreach ($refClass->getProperties() as $refProp) {
                 $propName = $refProp->getName();
                 $propertyNameNormalized = strtolower(preg_replace('/[A-Z]/', '_\\0', $propName));
@@ -84,42 +85,8 @@ class ClassBuilder implements OperationBuilderInterface
                 $schema->addProperty($propertyNameNormalized, $this->buildBodyProperty($annotations['api']));
             }
         } else {
-            foreach ($refClass->getProperties() as $refProp) {
-                $propName = $refProp->getName();
-                $propertyNameNormalized = strtolower(preg_replace('/[A-Z]/', '_\\0', $propName));
-                $annotations = $this->getAnnotationParser()->getAnnotations($refProp->getDocComment());
-                if (!array_key_exists($this->annotationName, $annotations)) {
-                    continue;
-                }
-
-                $operation->addParameter($this->buildQueryParameter($propertyNameNormalized, $annotations['api']));
-            }
+            (new ParametersBuilder($operation, $className, $this->annotationName))->build();
         }
-    }
-
-    /**
-     * @param string $name
-     * @param array  $apiData
-     *
-     * @return Parameter
-     */
-    private function buildQueryParameter(string $name, array $apiData): Parameter
-    {
-        $info = new ParameterGeneralInfo();
-        $info->setType($apiData['type']);
-        $info->setCollectionFormat($apiData['collectionFormat'] ?? null);
-        if (array_key_exists('items', $apiData)) {
-            $info->setItems(new Items($apiData['items']));
-        }
-
-        $parameter = new Parameter(Parameter::IN_QUERY);
-        $parameter->setName($name);
-        $parameter->setRequired($apiData['required'] ?? false);
-        $parameter->setDescription($apiData['description'] ?? '');
-        $parameter->setExample($apiData['example'] ?? '');
-        $parameter->setGeneralInfo($info);
-
-        return $parameter;
     }
 
     /**

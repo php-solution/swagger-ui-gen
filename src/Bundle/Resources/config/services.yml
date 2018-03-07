@@ -37,11 +37,11 @@ services:
         tags:
             - {name: 'swagger_uigen.model_builder.operation'}
 
-    PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Operation\FormTypeBuilder:
+    PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Operation\AnnotationBuilder:
         tags:
             - {name: 'swagger_uigen.model_builder.operation'}
 
-    PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Operation\ClassBuilder:
+    PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Operation\FormTypeBuilder:
         tags:
             - {name: 'swagger_uigen.model_builder.operation'}
 
