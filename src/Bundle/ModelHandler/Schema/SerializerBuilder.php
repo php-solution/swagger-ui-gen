@@ -57,7 +57,7 @@ class SerializerBuilder implements SchemaBuilderInterface
             return;
         }
 
-        $configGroups = $configRegistry->getMappingConfigValue($schema, 'serializer_groups');
+        $configGroups = (array) $configRegistry->getMappingConfigValue($schema, 'serializer_groups');
         $serializeMapping = $this->serializerMetaData->getMetadataFor($config['mapping']['class']);
 
         foreach ($serializeMapping->getAttributesMetadata() as $metadata) {

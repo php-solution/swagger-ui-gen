@@ -4,9 +4,12 @@ namespace PhpSolution\SwaggerUIGen\Bundle\DependencyInjection;
 
 use PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Operation\FormTypeBuilder;
 use PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Operation\FormValidatorBuilder;
-use PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Schema\DoctrineBuilder;
-use PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Schema\SerializerBuilder;
-use PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Schema\ValidatorBuilder;
+use PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Schema\{
+    DoctrineBuilder,
+    JMSSerializerBuilder,
+    SerializerBuilder,
+    ValidatorBuilder
+};
 use PhpSolution\SwaggerUIGen\Component\DataProvider\DataProviderInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;

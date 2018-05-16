@@ -53,7 +53,7 @@ class DoctrineBuilder implements SchemaBuilderInterface
     }
 
     /**
-     * @param Schema            $schema
+     * @param Schema         $schema
      * @param ConfigRegistry $configRegistry
      */
     public function buildSchema(Schema $schema, ConfigRegistry $configRegistry): void
@@ -84,8 +84,11 @@ class DoctrineBuilder implements SchemaBuilderInterface
             $fieldMapping = $classMetadata->getFieldMapping($fieldName);
             $schemaProperty = $schema->getProperty($fieldName) ?: new Schema();
             $schemaProperty->setType($fieldMapping['type']);
-            $schemaProperty->setUniqueItems($fieldMapping['unique'] || (array_key_exists('id', $fieldMapping) && $fieldMapping['id']));
-            $schemaProperty->setMaxLength($fieldMapping['length']);
+            $schemaProperty->setUniqueItems(
+                (array_key_exists('unique', $fieldMapping) && $fieldMapping['unique'])
+                || (array_key_exists('id', $fieldMapping) && $fieldMapping['id'])
+            );
+            $schemaProperty->setMaxLength($fieldMapping['length'] ?? null);
             $schema->addProperty($fieldName, $schemaProperty);
 
             // Add config for run builders for property
@@ -96,8 +99,8 @@ class DoctrineBuilder implements SchemaBuilderInterface
     }
 
     /**
-     * @param Schema            $schema
-     * @param ClassMetadata     $classMetadata
+     * @param Schema         $schema
+     * @param ClassMetadata  $classMetadata
      * @param ConfigRegistry $configRegistry
      */
     private function buildMappingAssociations(Schema $schema, ClassMetadata $classMetadata, ConfigRegistry $configRegistry): void
@@ -111,8 +114,8 @@ class DoctrineBuilder implements SchemaBuilderInterface
             $propertyConfig = [
                 'type' => self::ASSOC_TYPE_TRANSFORM[$associationMapping['type']],
                 'mapping' => [
-                    'class' => $associationMapping['targetEntity']
-                ]
+                    'class' => $associationMapping['targetEntity'],
+                ],
             ];
             $configRegistry->offsetSet($schemaProperty, $propertyConfig);
             $configRegistry->mergeTo($schema, ['properties' => [$fieldName => $propertyConfig]]);
