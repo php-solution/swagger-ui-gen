@@ -2,6 +2,8 @@
 
 namespace PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Schema;
 
+use PhpSolution\SwaggerUIGen\Bundle\ModelHandler\PropertyNaming\NamingStrategyInterface;
+use PhpSolution\SwaggerUIGen\Bundle\ModelHandler\SchemaFactory;
 use PhpSolution\SwaggerUIGen\Component\Model\DataTypeFormat;
 use PhpSolution\SwaggerUIGen\Component\Model\Schema;
 use Symfony\Component\Validator\Constraint;
@@ -24,13 +26,20 @@ class ValidatorBuilder implements SchemaBuilderInterface
     private $classMetadataFactory;
 
     /**
+     * @var SchemaFactory
+     */
+    private $schemaFactory;
+
+    /**
      * ValidatorBuilder constructor.
      *
      * @param MetadataFactoryInterface $classMetadataFactory
+     * @param SchemaFactory            $schemaFactory
      */
-    public function __construct(MetadataFactoryInterface $classMetadataFactory)
+    public function __construct(MetadataFactoryInterface $classMetadataFactory, SchemaFactory $schemaFactory)
     {
         $this->classMetadataFactory = $classMetadataFactory;
+        $this->schemaFactory = $schemaFactory;
     }
 
     /**
@@ -62,11 +71,14 @@ class ValidatorBuilder implements SchemaBuilderInterface
 
         $class = $config['mapping']['class'];
         $validationMetadata = $this->classMetadataFactory->getMetadataFor($class);
-        if ($validationMetadata instanceof ClassMetadata) {
-            $groups = $this->getGroups($schema, $configRegistry);
-            foreach ($validationMetadata->properties as $propertyName => $propertyMetadata) {
-                $this->buildPropertySchema($schema, $propertyName, $propertyMetadata, $groups);
-            }
+
+        if (!$validationMetadata instanceof ClassMetadata) {
+            return;
+        }
+
+        $groups = $this->getGroups($schema, $configRegistry);
+        foreach ($validationMetadata->properties as $propertyName => $propertyMetadata) {
+            $this->buildPropertySchema($schema, $propertyName, $propertyMetadata, $groups);
         }
     }
 
@@ -97,9 +109,7 @@ class ValidatorBuilder implements SchemaBuilderInterface
      */
     private function buildPropertySchema(Schema $parentSchema, string $propertyName, PropertyMetadata $metadata, array $groups): void
     {
-        $propertySchema = $parentSchema->getProperty($propertyName) ?: new Schema();
-        $parentSchema->addProperty($propertyName, $propertySchema);
-
+        $propertySchema = $this->schemaFactory->getChildPropertySchema($parentSchema, $propertyName);
         $builders = $this->getConstraintBuilders();
         foreach ($this->getConstraints($metadata, $groups) as $constraint) {
             $constraintClass = get_class($constraint);

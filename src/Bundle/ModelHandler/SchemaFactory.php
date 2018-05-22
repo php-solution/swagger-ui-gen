@@ -2,6 +2,7 @@
 
 namespace PhpSolution\SwaggerUIGen\Bundle\ModelHandler;
 
+use PhpSolution\SwaggerUIGen\Bundle\ModelHandler\PropertyNaming\NamingStrategyInterface;
 use PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Schema\ConfigRegistry;
 use PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Schema\SchemaBuilderInterface;
 use PhpSolution\SwaggerUIGen\Component\Model\Schema;
@@ -34,12 +35,14 @@ class SchemaFactory
     /**
      * SchemaFactory constructor.
      *
-     * @param GeneralFactory $objectsFactory
+     * @param GeneralFactory               $objectsFactory
+     * @param NamingStrategyInterface|null $namingStrategy
      */
-    public function __construct(GeneralFactory $objectsFactory)
+    public function __construct(GeneralFactory $objectsFactory, NamingStrategyInterface $namingStrategy = null)
     {
         $this->objectsFactory = $objectsFactory;
         $this->modelConfigRegistry = new ConfigRegistry();
+        $this->namingStrategy = $namingStrategy;
     }
 
     /**
@@ -74,6 +77,24 @@ class SchemaFactory
         }
 
         return $schema;
+    }
+
+    /**
+     * @param Schema $parentSchema
+     * @param string $propertyName
+     *
+     * @return Schema
+     */
+    public function getChildPropertySchema(Schema $parentSchema, string $propertyName): Schema
+    {
+        $propertyName = $this->namingStrategy instanceof NamingStrategyInterface
+            ? $this->namingStrategy->getName($propertyName)
+            : $propertyName;
+
+        $propertySchema = $parentSchema->getProperty($propertyName) ?: new Schema();
+        $parentSchema->addProperty($propertyName, $propertySchema);
+
+        return $propertySchema;
     }
 
     /**

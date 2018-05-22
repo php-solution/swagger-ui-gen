@@ -33,7 +33,6 @@ class Parameter
      * @var ParameterGeneralInfo|null
      */
     private $generalInfo;
-
     /**
      * @var mixed
      */

@@ -187,19 +187,24 @@ abstract class AbstractBuilder
         }
 
         if ($form->getParent() && $form->getParent()->getConfig()->getOption('data_class')) {
-            $metadata = $this->doctrine->getManager()->getClassMetadata($form->getParent()->getConfig()->getOption('data_class'));
+            $em = $this->doctrine->getManager();
+            $formDataClass = $form->getParent()->getConfig()->getOption('data_class');
 
-            $name = $this->getPropertyName($form);
-            if ($metadata->hasField($name)) {
-                $fieldMetadata = $metadata->getFieldMapping($name);
+            if ($em->getMetadataFactory()->hasMetadataFor($formDataClass)) {
+                $metadata = $em->getClassMetadata($formDataClass);
+                $name = $this->getPropertyName($form);
 
-                switch ($fieldMetadata['type']) {
-                    case 'integer':
-                        $optionFormat = 'int64';
-                        break;
-                    case 'float':
-                        $optionFormat = 'float';
-                        break;
+                if ($metadata->hasField($name)) {
+                    $fieldMetadata = $metadata->getFieldMapping($name);
+
+                    switch ($fieldMetadata['type']) {
+                        case 'integer':
+                            $optionFormat = 'int64';
+                            break;
+                        case 'float':
+                            $optionFormat = 'float';
+                            break;
+                    }
                 }
             }
         }

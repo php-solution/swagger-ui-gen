@@ -10,10 +10,12 @@ use PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Schema\{
     SerializerBuilder,
     ValidatorBuilder
 };
+use PhpSolution\SwaggerUIGen\Bundle\ModelHandler\SchemaFactory;
 use PhpSolution\SwaggerUIGen\Component\DataProvider\DataProviderInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 /**
@@ -38,6 +40,7 @@ class SwaggerUIGenExtension extends Extension
 
         $this->registerOptionsProvider($config, $container);
         $this->registerHandlers($config, $container);
+        $this->registerNamingStrategy($config, $container);
     }
 
     /**
@@ -72,6 +75,18 @@ class SwaggerUIGenExtension extends Extension
         }
         if (!$config['handlers']['doctrine_orm']) {
             $container->removeDefinition(DoctrineBuilder::class);
+        }
+    }
+
+    /**
+     * @param array            $config
+     * @param ContainerBuilder $container
+     */
+    private function registerNamingStrategy(array $config, ContainerBuilder $container): void
+    {
+        if ($config['naming_strategy_service']) {
+            $container->getDefinition(SchemaFactory::class)
+                ->setArgument(1, new Reference($config['naming_strategy_service']));
         }
     }
 }

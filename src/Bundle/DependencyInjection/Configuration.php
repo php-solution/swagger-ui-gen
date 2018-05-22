@@ -22,6 +22,7 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->root('swagger_ui_gen');
         $this->addOptionsFilesSection($rootNode);
         $this->addHandlersSection($rootNode);
+        $this->addNamingStrategySection($rootNode);
 
         return $treeBuilder;
     }
@@ -70,6 +71,17 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('doctrine_orm')->defaultFalse()->end()
                     ->end()
                 ->end()
+            ->end();
+    }
+
+    /**
+     * @param ArrayNodeDefinition $rootNode
+     */
+    private function addNamingStrategySection(ArrayNodeDefinition $rootNode): void
+    {
+        $rootNode
+            ->children()
+                ->scalarNode('naming_strategy_service')->defaultNull()->end()
             ->end();
     }
 }
