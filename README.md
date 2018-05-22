@@ -50,7 +50,7 @@ swagger_ui_gen:
         form_validator: false
         serializer: false
         doctrine_orm: false
-    naming_strategy_service: 'PhpSolution\SwaggerUIGen\Bundle\ModelHandler\PropertyNaming\CamelCaseNamingStrategy'
+    naming_strategy_service: 'PhpSolution\SwaggerUIGen\Bundle\ModelHandler\PropertyNaming\UnderscoreNamingStrategy'
 ````
 
 ## Generate file with Swagger Specification
