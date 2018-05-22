@@ -3,9 +3,9 @@
 namespace PhpSolution\SwaggerUIGen\Bundle\ModelHandler\PropertyNaming;
 
 /**
- * Class CamelCaseNamingStrategy
+ * Class UnderscoreNamingStrategy
  */
-class CamelCaseNamingStrategy implements NamingStrategyInterface
+class UnderscoreNamingStrategy implements NamingStrategyInterface
 {
     /**
      * @param string $property
