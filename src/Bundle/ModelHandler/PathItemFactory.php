@@ -127,6 +127,9 @@ class PathItemFactory
             $parameter = new Parameter($in, $name);
             $parameter->setRequired(true);
             $parameter->setGeneralInfo($generalInfo);
+            if (array_key_exists($name, $routeRequirements)) {
+                $parameter->addDescription('<b>Requirements:</b> '.$routeRequirements[$name]);
+            }
             $result[$name] = $parameter;
         }
 
