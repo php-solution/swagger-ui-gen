@@ -22,13 +22,21 @@ class BodyParametersBuilder extends AbstractParametersBuilder
     {
         $operation->setConsumes([self::CONSUMES_JSON]);
         $parameter = new Parameter(Parameter::IN_BODY);
-        $parameter->setName(Parameter::IN_BODY);
-        $parameter->setRequired(true);
-
-        $schema = new Schema('object');
-        $parameter->setSchema($schema);
         $operation->addParameter($parameter);
 
+        $parameter->setName(Parameter::IN_BODY);
+        $parameter->setRequired(true);
+        $parameter->setSchema($this->buildClass($className));
+    }
+
+    /**
+     * @param string $className
+     *
+     * @return Schema
+     */
+    private function buildClass(string $className): Schema
+    {
+        $schema = new Schema('object');
         foreach ($this->getReflectionClass($className)->getProperties() as $refProp) {
             $annotations = $this->annotationParser->getAnnotations($refProp->getDocComment());
             if (!array_key_exists($this->annotationName, $annotations)) {
@@ -39,23 +47,30 @@ class BodyParametersBuilder extends AbstractParametersBuilder
             $property = $this->buildBodyProperty($annotations[$this->annotationName]);
             $schema->addProperty($name, $property);
         }
+
+        return $schema;
     }
 
     /**
-     * @param array $apiData
+     * @param array $annotation
      *
      * @return Schema
      */
-    private function buildBodyProperty(array $apiData): Schema
+    private function buildBodyProperty(array $annotation): Schema
     {
-        $schema = new Schema($apiData['type'] ?? 'string');
-        $schema->setExample($apiData['example'] ?? null);
-        $schema->setDescription($apiData['description'] ?? null);
-        $schema->setMaximum($apiData['max'] ?? null);
-        $schema->setMinimum($apiData['min'] ?? null);
-        $schema->setRequired($apiData['required'] ?? false);
-        if (!empty($apiData['enum'])) {
-            $schema->setEnum($apiData['enum']);
+        if (class_exists($annotation['type'])) {
+            $schema = $this->buildClass($annotation['type']);
+        } else {
+            $schema = new Schema($annotation['type'] ?? 'string');
+            $schema->setRef($annotation['ref'] ?? null);
+            $schema->setExample($annotation['example'] ?? null);
+            $schema->setDescription($annotation['description'] ?? null);
+            $schema->setMaximum($annotation['max'] ?? null);
+            $schema->setMinimum($annotation['min'] ?? null);
+            $schema->setRequired($annotation['required'] ?? false);
+            if (!empty($annotation['enum'])) {
+                $schema->setEnum($annotation['enum']);
+            }
         }
 
         return $schema;
