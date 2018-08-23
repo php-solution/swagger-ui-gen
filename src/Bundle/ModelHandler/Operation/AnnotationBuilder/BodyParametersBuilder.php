@@ -62,6 +62,15 @@ class BodyParametersBuilder extends AbstractParametersBuilder
             $schema = $this->buildClass($annotation['type']);
         } else {
             $schema = new Schema($annotation['type'] ?? 'string');
+            if ('array' === $schema->getType()) {
+                if (class_exists($annotation['items'])) {
+                    $itemsSchema = $this->buildClass($annotation['items']);
+                } else {
+                    $itemsSchema = new Schema();
+                    $itemsSchema->setType($annotation['items']);
+                }
+                $schema->setItems($itemsSchema);
+            }
             $schema->setRef($annotation['ref'] ?? null);
             $schema->setExample($annotation['example'] ?? null);
             $schema->setDescription($annotation['description'] ?? null);
