@@ -134,7 +134,7 @@ class GeneralBuilder implements OperationBuilderInterface
     private function createResponse(array $config): Response
     {
         $responseSchema = $this->schemaModelFactory->createSchemaObject($config);
-        $response = $this->openapiObjectFactory->createResponseObject([]);
+        $response = $this->openapiObjectFactory->createResponseObject($config);
         $response->setSchema($responseSchema);
 
         return $response;
