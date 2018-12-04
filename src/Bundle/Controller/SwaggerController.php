@@ -4,7 +4,7 @@ namespace PhpSolution\SwaggerUIGen\Bundle\Controller;
 
 use PhpSolution\SwaggerUIGen\Component\DataProvider\DataProviderInterface;
 use PhpSolution\SwaggerUIGen\Component\SwaggerProvider;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\VarDumper\VarDumper;
@@ -12,7 +12,7 @@ use Symfony\Component\VarDumper\VarDumper;
 /**
  * SwaggerController
  */
-class SwaggerController extends Controller
+class SwaggerController extends AbstractController
 {
     /**
      * @param DataProviderInterface $configProvider
