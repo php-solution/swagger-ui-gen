@@ -18,8 +18,8 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('swagger_ui_gen');
+        $treeBuilder = new TreeBuilder('swagger_ui_gen');
+        $rootNode = $treeBuilder->getRootNode();
         $this->addOptionsFilesSection($rootNode);
         $this->addHandlersSection($rootNode);
         $this->addNamingStrategySection($rootNode);
