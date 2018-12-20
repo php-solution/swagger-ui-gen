@@ -6,7 +6,7 @@ services:
 
     PhpSolution\SwaggerUIGen\Bundle\:
         resource: '../../*'
-        exclude: '../../DependencyInjection'
+        exclude: '../../{DependencyInjection,ModelHandler/Operation/FormTypeBuilder}'
 
     Symfony\Component\Validator\Mapping\Factory\MetadataFactoryInterface: '@validator.mapping.class_metadata_factory'
 
