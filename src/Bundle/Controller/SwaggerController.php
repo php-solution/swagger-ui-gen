@@ -42,4 +42,17 @@ class SwaggerController extends AbstractController
 
         return new Response($responseData);
     }
+
+    /**
+     * @param DataProviderInterface $configProvider
+     * @param SwaggerProvider       $swaggerProvider
+     *
+     * @return JsonResponse
+     */
+    public function docAction(DataProviderInterface $configProvider, SwaggerProvider $swaggerProvider): Response
+    {
+        $swaggerDataJSON = json_encode($swaggerProvider->getSwaggerData($configProvider), 15);
+
+        return $this->render("index.html.php", ['swaggerDataJSON' => $swaggerDataJSON]);
+    }
 }
