@@ -41,6 +41,7 @@ class SwaggerUIGenExtension extends Extension
         $this->registerOptionsProvider($config, $container);
         $this->registerHandlers($config, $container);
         $this->registerNamingStrategy($config, $container);
+        $this->registerTemplatePath($config, $container);
     }
 
     /**
@@ -87,6 +88,17 @@ class SwaggerUIGenExtension extends Extension
         if ($config['naming_strategy_service']) {
             $container->getDefinition(SchemaFactory::class)
                 ->setArgument(1, new Reference($config['naming_strategy_service']));
+        }
+    }
+
+    /**
+     * @param array            $config
+     * @param ContainerBuilder $container
+     */
+    private function registerTemplatePath(array $config, ContainerBuilder $container): void
+    {
+        if ($config['templates_path']) {
+            $container->setParameter('swagger_ui_gen.templates_path', $config['templates_path']);
         }
     }
 }

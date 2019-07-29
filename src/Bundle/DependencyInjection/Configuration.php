@@ -23,6 +23,7 @@ class Configuration implements ConfigurationInterface
         $this->addOptionsFilesSection($rootNode);
         $this->addHandlersSection($rootNode);
         $this->addNamingStrategySection($rootNode);
+        $this->addTemplatesPathSection($rootNode);
 
         return $treeBuilder;
     }
@@ -82,6 +83,19 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->scalarNode('naming_strategy_service')->defaultNull()->end()
+            ->end();
+    }
+
+    /**
+     * @param ArrayNodeDefinition $rootNode
+     */
+    private function addTemplatesPathSection(ArrayNodeDefinition $rootNode): void
+    {
+        $rootNode
+            ->children()
+            ->scalarNode('templates_path')
+            ->defaultValue(__DIR__ . '/../Resources/views')
+            ->end()
             ->end();
     }
 }
