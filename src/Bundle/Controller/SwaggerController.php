@@ -57,8 +57,11 @@ class SwaggerController extends AbstractController
         $filesystemLoader = new FilesystemLoader($this->getParameter('swagger_ui_gen.templates_path') . '/%name%');
         $templating = new PhpEngine(new TemplateNameParser(), $filesystemLoader);
 
-        $swaggerDataJSON = json_encode($swaggerProvider->getSwaggerData($configProvider), 15);
+        $swaggerData = $swaggerProvider->getSwaggerData($configProvider);
+        $swaggerDataJSON = json_encode($swaggerData, 15);
 
-        return new Response($templating->render("index.html.php", ['swaggerDataJSON' => $swaggerDataJSON]));
+        $title = $swaggerData['info']['title'] ?? 'Swagger UI';
+
+        return new Response($templating->render("index.html.php", ['title' => $title, 'swaggerDataJSON' => $swaggerDataJSON]));
     }
 }
