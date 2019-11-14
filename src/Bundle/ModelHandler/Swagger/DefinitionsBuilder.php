@@ -4,7 +4,7 @@ namespace PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Swagger;
 
 use PhpSolution\SwaggerUIGen\Bundle\ModelHandler\SchemaFactory;
 use PhpSolution\SwaggerUIGen\Component\DataNormalizer\DataNormalizerInterface;
-use PhpSolution\SwaggerUIGen\Component\Model\Swagger;
+use PhpSolution\SwaggerUIGen\Component\Model\OpenAPI;
 use PhpSolution\SwaggerUIGen\Component\ModelHandler\SwaggerBuilderInterface;
 
 /**
@@ -40,14 +40,14 @@ class DefinitionsBuilder implements SwaggerBuilderInterface, DataNormalizerInter
     }
 
     /**
-     * @param Swagger $swagger
+     * @param OpenAPI $swagger
      * @param array   $configs
      */
-    public function build(Swagger $swagger, array $configs): void
+    public function build(OpenAPI $swagger, array $configs): void
     {
         foreach ($configs['sf_object_definitions'] ?? [] as $config) {
             $definition = $this->schemaFactory->createSchemaObject($config);
-            $swagger->addDefinition($config['name'], $definition);
+            $swagger->addSchemaToComponent($config['name'], $definition);
         }
     }
 }

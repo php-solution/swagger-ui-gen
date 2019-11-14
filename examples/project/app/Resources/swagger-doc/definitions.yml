@@ -3,11 +3,12 @@ sf_object_definitions:
     mapping:
       type: ['doctrine', 'serializer']
       class: 'Project\AdminBundle\Entity\Admin'
-      
-definitions:
-  SecurityToken:
-    type: 'object'
-    properties:
-      token: {type: 'string'}
-      refresh_token: {type: 'string'}
-      exp: {type: 'string'}
+
+components:
+  schemas:
+    SecurityToken:
+      type: 'object'
+      properties:
+        token: {type: 'string'}
+        refresh_token: {type: 'string'}
+        exp: {type: 'string'}

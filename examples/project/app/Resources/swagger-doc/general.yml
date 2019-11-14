@@ -1,13 +1,12 @@
-swagger: '2.0'
-host: ''
-basePath: '/'
-schemes: ['http', 'https']
+openapi: 3.0.0
+servers:
+    - url: http://localhost
+
 info:
     description: ""
     version: "1.0"
     title: ""
-consumes: []
-produces: ["application/json"]
+
 externalDocs:
     description: "Find out more about Swagger"
     url: "http://swagger.io"

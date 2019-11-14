@@ -4,7 +4,7 @@ namespace PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Swagger;
 
 use PhpSolution\SwaggerUIGen\Bundle\ModelHandler\PathItemFactory;
 use PhpSolution\SwaggerUIGen\Component\DataNormalizer\DataNormalizerInterface;
-use PhpSolution\SwaggerUIGen\Component\Model\Swagger;
+use PhpSolution\SwaggerUIGen\Component\Model\OpenAPI;
 use PhpSolution\SwaggerUIGen\Component\ModelHandler\SwaggerBuilderInterface;
 
 /**
@@ -40,10 +40,10 @@ class RoutePaths implements SwaggerBuilderInterface, DataNormalizerInterface
     }
 
     /**
-     * @param Swagger $swagger
+     * @param OpenAPI $swagger
      * @param array   $configs
      */
-    public function build(Swagger $swagger, array $configs): void
+    public function build(OpenAPI $swagger, array $configs): void
     {
         foreach ($configs['sf_route_paths'] ?? [] as $config) {
             $this->pathItemFactory->createPathItemObject($config, $swagger);

@@ -3,7 +3,7 @@
 namespace PhpSolution\SwaggerUIGen\Bundle\ModelHandler;
 
 use PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Operation\OperationBuilderInterface;
-use PhpSolution\SwaggerUIGen\Component\Model\Swagger;
+use PhpSolution\SwaggerUIGen\Component\Model\OpenAPI;
 use PhpSolution\SwaggerUIGen\Component\ModelHandler\GeneralFactory;
 use PhpSolution\SwaggerUIGen\Component\Model\Operation;
 use PhpSolution\SwaggerUIGen\Component\Model\Parameter;
@@ -57,7 +57,7 @@ class PathItemFactory
      *
      * @return PathItem
      */
-    public function createPathItemObject(array $config, Swagger $swagger): PathItem
+    public function createPathItemObject(array $config, OpenAPI $swagger): PathItem
     {
         if (is_null($routeInfo = $this->router->getRouteCollection()->get($config['route']))) {
             throw new \InvalidArgumentException(sprintf('Undefined route name "%s"', $config['route']));
