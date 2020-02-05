@@ -69,6 +69,7 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('form')->defaultFalse()->end()
                         ->scalarNode('form_validator')->defaultFalse()->end()
                         ->scalarNode('serializer')->defaultFalse()->end()
+                        ->scalarNode('jms_serializer')->defaultFalse()->end()
                         ->scalarNode('doctrine_orm')->defaultFalse()->end()
                     ->end()
                 ->end()

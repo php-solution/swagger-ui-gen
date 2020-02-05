@@ -49,6 +49,7 @@ swagger_ui_gen:
         form: false
         form_validator: false
         serializer: false
+        jms_serializer: false
         doctrine_orm: false
     naming_strategy_service: 'PhpSolution\SwaggerUIGen\Bundle\ModelHandler\PropertyNaming\UnderscoreNamingStrategy'
 ````
