@@ -2,7 +2,7 @@
 
 namespace PhpSolution\SwaggerUIGen\Bundle\ModelHandler\Schema;
 
-use Metadata\AdvancedMetadataFactoryInterface;
+use Metadata\MetadataFactoryInterface;
 use Metadata\ClassHierarchyMetadata;
 use PhpSolution\SwaggerUIGen\Component\Model\Schema;
 
@@ -14,13 +14,13 @@ use PhpSolution\SwaggerUIGen\Component\Model\Schema;
 class JMSSerializerBuilder implements SchemaBuilderInterface
 {
     /**
-     * @var AdvancedMetadataFactoryInterface
+     * @var MetadataFactoryInterface
      */
-    private $advancedMetadataFactory;
+    private $metadataFactory;
 
-    public function __construct(AdvancedMetadataFactoryInterface $advancedMetadataFactory)
+    public function __construct(MetadataFactoryInterface $metadataFactory)
     {
-        $this->advancedMetadataFactory = $advancedMetadataFactory;
+        $this->metadataFactory = $metadataFactory;
     }
 
     /**
@@ -50,7 +50,7 @@ class JMSSerializerBuilder implements SchemaBuilderInterface
             return;
         }
 
-        $serializeMapping = $this->advancedMetadataFactory->getMetadataForClass($config['mapping']['class']);
+        $serializeMapping = $this->metadataFactory->getMetadataForClass($config['mapping']['class']);
         if ($serializeMapping instanceof ClassHierarchyMetadata) {
             foreach ($serializeMapping->classMetadata as $metadata) {
                 $propertyName = $metadata->name;
