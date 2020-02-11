@@ -10,10 +10,12 @@ services:
 
     Symfony\Component\Validator\Mapping\Factory\MetadataFactoryInterface: '@validator.mapping.class_metadata_factory'
 
+    PhpSolution\SwaggerUIGen\Bundle\Service\DataProviderFactory: ~
+
     PhpSolution\SwaggerUIGen\Component\DataProvider\DataProviderInterface:
         class: 'PhpSolution\SwaggerUIGen\Component\DataProvider\YamlDataProvider'
         arguments: [[], [], []]
-        factory: 'PhpSolution\SwaggerUIGen\Bundle\Service\DataProviderFactory:createDataProvider'
+        factory: ['@PhpSolution\SwaggerUIGen\Bundle\Service\DataProviderFactory', 'createDataProvider']
 
     PhpSolution\SwaggerUIGen\Component\SwaggerProvider:
         class: 'PhpSolution\SwaggerUIGen\Component\SwaggerProvider'

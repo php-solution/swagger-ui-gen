@@ -29,19 +29,29 @@ const ui = SwaggerUIBundle({
     url: "http://localhost/assets/swagger-spec.json",
 })
 ````
+4. Add line to config/bundles.php
+````
+PhpSolution\SwaggerUIGen\Bundle\SwaggerUIGenBundle::class => ['all' => true],
+````    
 
 ## Add Symfony Configuration
+Create file :
+ 
+    touch config/packages/swagger_uigen.yaml
+    
+Add the following configuration to the recently created file:
+    
 ````
 swagger_ui_gen:
     options_provider:
         defaults:
-            - '%kernel.root_dir%/Resources/swagger-doc/defaults.yml'
+            - '%kernel.project_dir%/Resources/swagger-doc/defaults.yml'
         files:
-            - '%kernel.root_dir%/Resources/swagger-doc/general.yml'
-            - '%kernel.root_dir%/Resources/swagger-doc/tags.yml'
-            - '%kernel.root_dir%/Resources/swagger-doc/paths.yml'
-            - '%kernel.root_dir%/Resources/swagger-doc/security_def.yml'
-            - '%kernel.root_dir%/Resources/swagger-doc/definitions.yml'
+            - '%kernel.project_dir%/Resources/swagger-doc/general.yml'
+            - '%kernel.project_dir%/Resources/swagger-doc/tags.yml'
+            - '%kernel.project_dir%/Resources/swagger-doc/paths.yml'
+            - '%kernel.project_dir%/Resources/swagger-doc/security_def.yml'
+            - '%kernel.project_dir%/Resources/swagger-doc/definitions.yml'
         folders:
             - '@ProjectAdminBundle/Resources/config/swagger-doc'
     handlers:
@@ -55,7 +65,7 @@ swagger_ui_gen:
 
 ## Generate file with Swagger Specification
 ````
-php bin\console swagger-gen:generate-spec --path=./web/assets/swagger-spec.json
+php bin/console swagger-gen:generate-spec --path=./web/assets/swagger-spec.json
 ````
 
 ## Examples
