@@ -44,28 +44,32 @@ class SwaggerModelExtractor
     private function getExtractConfigBuilders(): array
     {
         return [
-            Model\Swagger::class => function (ObjectExtractConfig $config) {
-                $config->setProps(['swagger', 'host', 'basePath', 'info', 'externalDocs']);
-                $config->setCollectionsProps(['paths', 'definitions', 'parameters', 'responses', 'securityDefinitions', 'security', 'tags']);
+            Model\OpenAPI::class => static function (ObjectExtractConfig $config) {
+                $config->setProps(['openapi', 'servers', 'info', 'components', 'externalDocs']);
+                $config->setCollectionsProps(['servers', 'paths', 'parameters', 'responses', 'security', 'tags']);
             },
-            Model\Items::class => function (ObjectExtractConfig $config) {
+            Model\Components::class => static function(ObjectExtractConfig $config) {
+                $config->setProps(['securitySchemes', 'schemas']);
+                $config->setCollectionsProps(['securitySchemes', 'schemas']);
+            },
+            Model\Items::class => static function (ObjectExtractConfig $config) {
                 $config->setIgnoredProps(['extensionsFields']);
             },
-            Model\Operation::class => function (ObjectExtractConfig $config) {
+            Model\Operation::class => static function (ObjectExtractConfig $config) {
                 $config->setCollectionsProps(['parameters', 'security', 'responses']);
             },
-            Model\Response::class => function (ObjectExtractConfig $config) {
+            Model\Response::class => static function (ObjectExtractConfig $config) {
                 $config->setProps(['schema', 'description', 'examples']);
                 $config->setCollectionsProps(['headers']);
             },
-            Model\Schema::class => function (ObjectExtractConfig $config) {
+            Model\Schema::class => static function (ObjectExtractConfig $config) {
                 $config->setCollectionsProps(['additionalProperties', 'allOf', 'properties']);
                 $config->setIgnoredProps(['parent']);
                 $config->setNameTransformer(['ref' => '$ref']);
             },
-            Model\PathItem::class => function (ObjectExtractConfig $config) {
+            Model\PathItem::class => static function (ObjectExtractConfig $config) {
                 $config->setCustomExtractor(
-                    function (Model\PathItem $pathItem, ObjectExtractor $extractor) {
+                    static function (Model\PathItem $pathItem, ObjectExtractor $extractor) {
                         $result = [];
                         if ($pathItem->getRef()) {
                             $result['$ref'] = $pathItem->getRef();
@@ -82,9 +86,9 @@ class SwaggerModelExtractor
                     }
                 );
             },
-            Model\Parameter::class => function (ObjectExtractConfig $config) {
+            Model\Parameter::class => static function (ObjectExtractConfig $config) {
                 $config->setCustomExtractor(
-                    function (Model\Parameter $parameter, ObjectExtractor $extractor) {
+                    static function (Model\Parameter $parameter, ObjectExtractor $extractor) {
                         $result = [
                             'in' => $parameter->getIn(),
                             'name' => $parameter->getName(),
@@ -103,16 +107,16 @@ class SwaggerModelExtractor
                     }
                 );
             },
-            Model\Example::class => function (ObjectExtractConfig $config) {
+            Model\Example::class => static function (ObjectExtractConfig $config) {
                 $config->setCustomExtractor(
-                    function (Model\Example $example, ObjectExtractor $extractor) {
+                    static function (Model\Example $example, ObjectExtractor $extractor) {
                         return $example->getEls();
                     }
                 );
             },
-            Model\SecurityRequirement::class => function (ObjectExtractConfig $config) {
+            Model\SecurityRequirement::class => static function (ObjectExtractConfig $config) {
                 $config->setCustomExtractor(
-                    function (Model\SecurityRequirement $object) {
+                    static function (Model\SecurityRequirement $object) {
                         return $object->getFields();
                     }
                 );

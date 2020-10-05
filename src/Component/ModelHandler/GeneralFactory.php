@@ -88,7 +88,7 @@ class GeneralFactory
         $this->objectHydrator->hydrate(
             $operation,
             $data,
-            ['tags', 'summary', 'description', 'operationId', 'consumes', 'consumes', 'produces', 'schemes', 'deprecated']
+            ['tags', 'summary', 'description', 'operationId', 'consumes', 'produces', 'schemes', 'deprecated']
         );
         if (isset($data['externalDocs'])) {
             $operation->setExternalDocs($this->createExternalDocObject($data['externalDocs']));

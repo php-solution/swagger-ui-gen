@@ -2,7 +2,7 @@
 
 namespace PhpSolution\SwaggerUIGen\Component\ModelHandler;
 
-use PhpSolution\SwaggerUIGen\Component\Model\Swagger;
+use PhpSolution\SwaggerUIGen\Component\Model\OpenAPI;
 
 /**
  * Class SwaggerBuilderInterface
@@ -12,10 +12,10 @@ use PhpSolution\SwaggerUIGen\Component\Model\Swagger;
 interface SwaggerBuilderInterface
 {
     /**
-     * @param Swagger $model
+     * @param OpenAPI $model
      * @param array   $data
      *
      * @return mixed
      */
-    public function build(Swagger $model, array $data);
+    public function build(OpenAPI $model, array $data);
 }

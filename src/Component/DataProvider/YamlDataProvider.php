@@ -39,22 +39,22 @@ class YamlDataProvider implements DataProviderInterface
     {
         $defaultsContent = '';
         foreach ($this->defaultsPaths as $defaultsPath) {
-            $defaultsContent .= file_get_contents($defaultsPath) . PHP_EOL;
+            $defaultsContent .= \file_get_contents($defaultsPath) . PHP_EOL;
         }
 
         $result = [];
         foreach ($this->paths as $path) {
-            $configContent = $defaultsContent . file_get_contents($path) . PHP_EOL;
+            $configContent = $defaultsContent . \file_get_contents($path) . PHP_EOL;
             $config = Yaml::parse($configContent);
-            $result = array_merge_recursive($result, $config);
+            $result = \array_merge_recursive($result, $config);
         }
 
         // Remove defaults
-        $defaultsKeys = array_keys(Yaml::parse($defaultsContent));
-        $result = array_filter(
+        $defaultsKeys = \array_keys(Yaml::parse($defaultsContent));
+        $result = \array_filter(
             $result,
-            function ($key) use ($defaultsKeys) {
-                return !in_array($key, $defaultsKeys);
+            static function ($key) use ($defaultsKeys) {
+                return !\in_array($key, $defaultsKeys);
             },
             ARRAY_FILTER_USE_KEY
         );

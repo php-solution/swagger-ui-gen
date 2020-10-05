@@ -6,7 +6,7 @@ use PhpSolution\SwaggerUIGen\Component\DataNormalizer\DataNormalizerInterface;
 use PhpSolution\SwaggerUIGen\Component\DataNormalizer\OpenapiNormalizer;
 use PhpSolution\SwaggerUIGen\Component\DataProvider\DataProviderInterface;
 use PhpSolution\SwaggerUIGen\Component\ModelHandler\SwaggerBuilderInterface;
-use PhpSolution\SwaggerUIGen\Component\Model\Swagger;
+use PhpSolution\SwaggerUIGen\Component\Model\OpenAPI;
 
 /**
  * Class SwaggerProvider
@@ -68,15 +68,15 @@ class SwaggerProvider
     /**
      * @param array $inputConfigs
      *
-     * @return Swagger
+     * @return OpenAPI
      */
-    public function createSwaggerModel(array $inputConfigs): Swagger
+    public function createSwaggerModel(array $inputConfigs): OpenAPI
     {
         $normalizedConfigs = [];
         foreach ($this->dataNormalizers as $normalizer) {
             $normalizedConfigs = array_merge($normalizedConfigs, $normalizer->normalize($inputConfigs));
         }
-        $swagger = new Swagger();
+        $swagger = new OpenAPI();
         foreach ($this->swaggerBuilders as $swaggerBuilder) {
             $swaggerBuilder->build($swagger, $inputConfigs);
         }
